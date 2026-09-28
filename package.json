@@ -1,0 +1,24 @@
+{
+  "name": "tandem",
+  "version": "1.0.0",
+  "description": "```   __ __                  _                   |_   _|                | |                    | |  __ _  _ __    __| |  ___  _ __ ___      | | / _` || '_ \\  / _` | / _ \\| '_ ` _ \\     | || (_| || | | || (_| ||  __/| | | | | |    \\_/ \\__,_||_| |_| \\__,_| \\___||_| |_| |_|",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pragya-Ghosh/tandem.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Pragya-Ghosh/tandem/issues"
+  },
+  "homepage": "https://github.com/Pragya-Ghosh/tandem#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "ws": "^8.22.0"
+  }
+}
