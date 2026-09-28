@@ -9,7 +9,7 @@ app.use(cors());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-//array of versioned lines (serves as the database for now)
+//array of versioned lines
 let documentState = [
     { index: 0, version: 1, content: "function initialize() {" },
     { index: 1, version: 1, content: "  console.log('Tandem is live!');" },
