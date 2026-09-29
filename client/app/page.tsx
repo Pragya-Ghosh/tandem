@@ -168,7 +168,7 @@ export default function TandemEditor() {
             "'JetBrains Mono','Ubuntu Mono','Fira Code',ui-monospace,monospace",
         } as React.CSSProperties
       }
-      className="min-h-screen bg-[var(--bg)] text-[#e6e6e6] select-none text-sm sm:text-base px-4 sm:px-10 md:px-20 py-6 flex justify-center"
+      className="min-h-screen bg-[var(--bg)] text-[#e6e6e6] select-none text-sm sm:text-base px-8 sm:px-16 md:px-28 py-12 sm:py-16 md:py-20 flex justify-center"
     >
       {/* Fonts: pixel display face for the logo + a proper terminal mono */}
       <style>{`
@@ -176,7 +176,7 @@ export default function TandemEditor() {
         .pixel { font-family: 'Silkscreen', 'JetBrains Mono', monospace; }
       `}</style>
 
-      <div className="w-full max-w-5xl flex flex-col gap-4 min-h-[calc(100vh-3rem)]">
+      <div className="w-full max-w-5xl flex flex-col gap-4 min-h-[calc(100vh-10rem)]">
         {/* ── Top bar: tabs + path, with version badge on the border ── */}
         <Box title="tandem-0.1.0" className="px-3 py-2 flex items-center justify-between gap-4">
           <nav className="flex items-center">
@@ -202,9 +202,9 @@ export default function TandemEditor() {
         </Box>
 
         {/* ── Main panel ── */}
-        <Box className="flex-1 flex flex-col px-4 sm:px-8 pt-6 pb-8">
+        <Box className="flex-1 flex flex-col px-4 sm:px-8 pt-8 pb-10">
           {tab === "general" ? (
-            <div className="flex flex-col items-center text-center flex-1 justify-center gap-1">
+            <div className="flex flex-col items-center text-center gap-1">
               <h1 className="pixel text-5xl sm:text-7xl text-[#e6e6e6] leading-none">
                 tandem.
               </h1>
