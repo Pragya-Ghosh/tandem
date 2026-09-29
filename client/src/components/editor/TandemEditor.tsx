@@ -21,11 +21,11 @@ export default function TandemEditor() {
   });
 
   return (
-    <main className="tandem-root flex min-h-screen justify-center px-6 py-16 text-sm select-none sm:px-20 sm:py-24 sm:text-base md:px-40 md:py-32 lg:px-56">
+    <main className="tandem-root flex min-h-screen justify-center p-[clamp(1.5rem,4vw,3.5rem)] text-sm select-none sm:text-base">
       <div className="flex min-h-[70vh] w-full max-w-4xl flex-col gap-4">
         <EditorHeader activeTab={tab} onSelectTab={setTab} />
 
-        <Box className="relative flex flex-1 flex-col px-4 pt-8 pb-10 sm:px-8">
+        <Box className="relative flex flex-1 flex-col p-[clamp(1.5rem,4vw,3rem)]">
           {tab === "general" ? (
             <OverviewPanel lines={lines} connected={connected} />
           ) : (
