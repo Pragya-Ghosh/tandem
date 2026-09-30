@@ -40,21 +40,23 @@ export function OverviewPanel({ lines, connected }: OverviewPanelProps) {
         </Field>
       </Box>
 
-      <Box title="Line versions" className="mt-4 w-full max-w-md px-2 py-2 text-left">
-        {lines.length === 0 ? (
-          <p className="fg-dim">Waiting for the server…</p>
-        ) : (
-          <div className="grid grid-cols-[auto_1fr] gap-x-8">
-            <span className="font-bold">Line</span>
-            <span className="font-bold">Version</span>
-            {lines.slice(0, PREVIEW_ROWS).map((line, i) => (
-              <div key={line.index} className="contents">
-                <span className={i === 0 ? "fg-ok" : ""}>{line.index}</span>
-                <span className={i === 0 ? "fg-ok" : ""}>v{line.version}</span>
-              </div>
-            ))}
-          </div>
-        )}
+      <Box title="Line versions" className="mt-4 w-full max-w-md text-left">
+        <div style={{ paddingTop: "14px", paddingBottom: "10px", paddingLeft: "12px", paddingRight: "12px" }}>
+          {lines.length === 0 ? (
+            <p className="fg-dim">Waiting for the server…</p>
+          ) : (
+            <div className="grid grid-cols-[auto_1fr] gap-x-8">
+              <span className="font-bold">Line</span>
+              <span className="font-bold">Version</span>
+              {lines.slice(0, PREVIEW_ROWS).map((line, i) => (
+                <div key={line.index} className="contents">
+                  <span className={i === 0 ? "fg-ok" : ""}>{line.index}</span>
+                  <span className={i === 0 ? "fg-ok" : ""}>v{line.version}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Box>
     </div>
   );
