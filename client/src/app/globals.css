@@ -69,13 +69,29 @@ body {
 /* ---- Tab Button ---- */
 .tandem-root .tab {
   cursor: pointer;
-  color: var(--teal);
+  /* Unselected state*/
+  color: var(--dim);
+  background: var(--surface);
+  border: 1px solid var(--dim);
+  padding: 0.25rem 1rem; 
   outline: none;
+  transition: all 0.15s ease-in-out;
 }
-.tandem-root .tab:hover { color: var(--teal-hi); }
-.tandem-root .tab:focus-visible { text-decoration: underline; }
+
+.tandem-root .tab:hover { 
+  color: var(--fg); 
+  border-color: var(--teal-hi);
+}
+
+.tandem-root .tab:focus-visible { 
+  border-color: var(--gold); 
+}
+
 .tandem-root .tab[aria-selected="true"] {
-  color: var(--fg);
+  /* Active state */
+  background: var(--teal);
+  color: var(--bg);
+  border-color: var(--teal);
   font-weight: 700;
 }
 
