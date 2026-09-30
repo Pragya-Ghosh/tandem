@@ -8,7 +8,7 @@ interface FieldProps {
 /** A `Name: value` row with a teal label. */
 export function Field({ name, children }: FieldProps) {
   return (
-    <div>
+    <div style={{ padding: "6px 12px" }}>
       <span className="fg-teal">{name}:</span> <span className="fg">{children}</span>
     </div>
   );
