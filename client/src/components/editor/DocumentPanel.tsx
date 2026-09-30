@@ -13,7 +13,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
     <Box title="Active Document" className="mt-2 flex flex-1 flex-col p-3">
       <div 
         className="flex-1 space-y-0.5 overflow-y-auto" 
-        style={{ paddingTop: "10px", paddingLeft: "16px" }}
+        style={{ paddingLeft: "16px" }}
       >
         {lines.length === 0 && (
           <p className="fg-dim">No lines yet. Is the server running?</p>

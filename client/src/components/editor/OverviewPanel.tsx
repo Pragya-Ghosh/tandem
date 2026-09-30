@@ -3,7 +3,7 @@ import type { Line } from "@/types/tandem";
 import { ConnectionStatus } from "./ConnectionStatus";
 import { Box, Field } from "@/components/ui";
 
-const PREVIEW_ROWS = 8;
+const PREVIEW_ROWS = 7;
 
 interface OverviewPanelProps {
   lines: Line[];
@@ -14,23 +14,23 @@ export function OverviewPanel({ lines, connected }: OverviewPanelProps) {
   const totalEdits = lines.reduce((sum, l) => sum + l.version, 0);
 
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
+    <div className="flex flex-col items-center gap-3 text-center py-2">
       <h1 className="pixel text-5xl sm:text-7xl leading-none">
         tandem.
       </h1>
 
-      <p className="mt-2">
+      <p className="mt-2 text-base sm:text-lg">
         Made for developers who{" "}
         <span className="fg-gold italic">code in tandem.</span>
       </p>
       <div className="border-dim my-2 w-64 border-t sm:w-80" />
       <p className="italic">Powered by Line-Level Optimistic Concurrency Control</p>
       
-      <p className="fg-dim" style={{ marginBottom: "70px" }}>
+      <p className="fg-dim" style={{ marginBottom: "28px" }}>
         [with <span className="fg-teal">♥</span> by <a href="https://github.com/Pragya-Ghosh/tandem" style={{color: "inherit"}}><span className="fg-teal">@Pragya-Ghosh</span>]</a>
       </p>
 
-      <Box className="w-full max-w-sm px-2 py-1 text-left">
+      <Box className="w-full max-w-sm px-3 py-2 text-left">
         <Field name="File">{DOCUMENT_NAME}</Field>
         <Field name="Lines">{lines.length}</Field>
         <Field name="Total edits">{totalEdits}</Field>
@@ -41,7 +41,7 @@ export function OverviewPanel({ lines, connected }: OverviewPanelProps) {
       </Box>
 
       <Box title="Line versions" className="mt-4 w-full max-w-md text-left">
-        <div style={{ paddingTop: "10px", paddingBottom: "10px", paddingLeft: "12px", paddingRight: "12px" }}>
+        <div style={{ paddingTop: "10px", paddingBottom: "10px", paddingLeft: "14px", paddingRight: "14px" }}>
           {lines.length === 0 ? (
             <p className="fg-dim">Waiting for the server…</p>
           ) : (
