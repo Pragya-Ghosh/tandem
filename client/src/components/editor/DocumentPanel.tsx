@@ -11,9 +11,12 @@ interface DocumentPanelProps {
 export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPanelProps) {
   return (
     <Box title="Active Document" className="mt-2 flex flex-1 flex-col p-3">
-      <div className="flex-1 space-y-0.5 overflow-y-auto pt-2">
+      <div 
+        className="flex-1 space-y-0.5 overflow-y-auto" 
+        style={{ paddingTop: "10px", paddingLeft: "16px" }}
+      >
         {lines.length === 0 && (
-          <p className="fg-dim px-2">No lines yet. Is the server running?</p>
+          <p className="fg-dim">No lines yet. Is the server running?</p>
         )}
         {lines.map((line) => (
           <LineRow

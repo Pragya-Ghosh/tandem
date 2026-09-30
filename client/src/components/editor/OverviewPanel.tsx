@@ -41,7 +41,7 @@ export function OverviewPanel({ lines, connected }: OverviewPanelProps) {
       </Box>
 
       <Box title="Line versions" className="mt-4 w-full max-w-md text-left">
-        <div style={{ paddingTop: "14px", paddingBottom: "10px", paddingLeft: "12px", paddingRight: "12px" }}>
+        <div style={{ paddingTop: "10px", paddingBottom: "10px", paddingLeft: "12px", paddingRight: "12px" }}>
           {lines.length === 0 ? (
             <p className="fg-dim">Waiting for the server…</p>
           ) : (
