@@ -14,22 +14,23 @@ export function OverviewPanel({ lines, connected }: OverviewPanelProps) {
   const totalEdits = lines.reduce((sum, l) => sum + l.version, 0);
 
   return (
-    <div className="flex flex-col items-center gap-1 text-center">
+    <div className="flex flex-col items-center gap-3 text-center">
       <h1 className="pixel text-5xl sm:text-7xl leading-none">
         tandem.
       </h1>
 
-      <p className="mt-3">
-        Edit files in real time{" "}
-        <span className="fg-gold italic">without stepping on each other.</span>
+      <p className="mt-2">
+        Made for developers who{" "}
+        <span className="fg-gold italic">code in tandem.</span>
       </p>
       <div className="border-dim my-2 w-64 border-t sm:w-80" />
-      <p className="italic">Optimistic concurrency, one line at a time</p>
-      <p className="fg-dim">
-        [with <span className="fg-teal">♥</span> by <span className="fg-teal">@pragya</span>]
+      <p className="italic">Powered by Line-Level Optimistic Concurrency Control</p>
+      
+      <p className="fg-dim" style={{ marginBottom: "70px" }}>
+        [with <span className="fg-teal">♥</span> by <a href="https://github.com/Pragya-Ghosh/tandem" style={{color: "inherit"}}><span className="fg-teal">@Pragya-Ghosh</span>]</a>
       </p>
 
-      <Box className="mt-8 w-full max-w-sm px-2 py-1 text-left">
+      <Box className="w-full max-w-sm px-2 py-1 text-left">
         <Field name="File">{DOCUMENT_NAME}</Field>
         <Field name="Lines">{lines.length}</Field>
         <Field name="Total edits">{totalEdits}</Field>
@@ -39,7 +40,7 @@ export function OverviewPanel({ lines, connected }: OverviewPanelProps) {
         </Field>
       </Box>
 
-      <Box title="Line versions" className="mt-6 w-full max-w-md px-2 py-2 text-left">
+      <Box title="Line versions" className="mt-4 w-full max-w-md px-2 py-2 text-left">
         {lines.length === 0 ? (
           <p className="fg-dim">Waiting for the server…</p>
         ) : (
