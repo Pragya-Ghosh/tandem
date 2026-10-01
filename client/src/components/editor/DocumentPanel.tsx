@@ -14,7 +14,6 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
   
   const [localLines, setLocalLines] = useState<Line[]>([{ index: 1, version: 0, content: "" }]);
   
-  // New state: true only while holding the 'Alt' key
   const [showVersions, setShowVersions] = useState(false);
 
   useEffect(() => {
@@ -23,7 +22,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
     }
   }, [lines]);
 
-  // Listen for the Alt key being pressed and released
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Alt") setShowVersions(true); };
     const handleKeyUp = (e: KeyboardEvent) => { if (e.key === "Alt") setShowVersions(false); };
@@ -73,7 +72,6 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
       <div 
         ref={containerRef}
         onClick={handleContainerClick}
-        // space-y-0.5 removed so lines sit flush with no gaps!
         className="flex-1 overflow-y-auto cursor-text px-2 pb-12" 
       >
         {localLines.map((line) => (
@@ -81,7 +79,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
             key={line.index}
             line={line}
             hasConflict={conflictIndex === line.index}
-            showVersion={showVersions} // Pass the shortcut state down
+            showVersion={showVersions} 
             onChange={handleEditLine}
             onAddLine={handleAddLine}
             onRemoveLine={handleRemoveLine}

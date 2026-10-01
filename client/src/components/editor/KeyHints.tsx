@@ -12,10 +12,14 @@ export function KeyHints({ tab, connected }: KeyHintsProps) {
   return (
     <div className="absolute right-4 -bottom-[0.7em] left-4 flex leading-none">
       <span className="bg-page flex flex-wrap gap-x-3 px-1">
-        {/* Changed Enter -> F4, and Tab -> F2 */}
         {tab === "general" && <Key keyName="F4" label="Open editor" />}
         <Key keyName="F2" label="Next" />
-        {tab === "editor" && <Key keyName="Esc" label="Leave line" />}
+        {tab === "editor" && (
+          <>
+            <Key keyName="Esc" label="Leave line" />
+            <Key keyName="Alt" label="View line versions" />
+          </>
+        )}
         <span className="whitespace-nowrap">
           <span className="fg-dim">[</span>
           <ConnectionStatus connected={connected} labels={{ on: "Connected", off: "Offline" }} />
