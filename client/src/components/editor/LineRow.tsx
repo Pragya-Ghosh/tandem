@@ -43,9 +43,28 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
   };
 
   return (
-    <div className="flex items-center">
-
-      <div className="w-12 shrink-0 pr-3 text-right text-[18px] text-dim select-none border-r border-dim">
+    <div 
+      className={`flex items-center transition-all py-0.5 my-0.5 px-1 rounded-sm border ${
+        hasConflict ? "bg-red-900/30 border-red-500" : ""
+      }`}
+      style={
+        hasConflict 
+          ? undefined 
+          : {
+              borderColor: showVersion ? "rgba(212, 212, 216, 0.2)" : "transparent",
+              backgroundColor: showVersion ? "rgba(31, 31, 31, 0.5)" : "transparent",
+            }
+      }
+    >
+      
+      <div 
+        className="w-12 shrink-0 text-right text-[18px] text-dim select-none"
+        style={
+          showVersion 
+            ? { borderRight: "1px solid rgba(212, 212, 216, 0.2)", paddingRight: "0.75rem", marginRight: "0.25rem" } 
+            : { paddingRight: "0.75rem" }
+        }
+      >
         {line.index}
       </div>
 
@@ -57,12 +76,17 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
         spellCheck={false}
         autoComplete="off"
         data-conflict={hasConflict}
-
         className="line-input ml-3 min-w-0 !text-[18px]"
       />
       
       {showVersion && (
-        <div className="text-[14px] text-teal-500 select-none pl-2 pr-2">
+        <div 
+          className="text-[16px] font-mono text-teal-400 px-2 py-0.5 select-none ml-4 mr-2 shadow-sm"
+          style={{
+            backgroundColor: "#1f1f1f",
+            border: "1px solid rgba(212, 212, 216, 0.3)"
+          }}
+        >
           v{line.version}
         </div>
       )}
