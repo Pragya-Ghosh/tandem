@@ -3,9 +3,9 @@ import { useEffect, useRef } from "react";
 type Bindings = Partial<Record<string, () => void>>;
 
 /**
- * Global key bindings for the terminal UI.
- * - Ignored while typing in an <input>, except Escape which blurs it.
- * - Bound keys have their default behaviour prevented (e.g. Tab).
+- Global key bindings for the terminal UI.
+- Ignored while typing in an <input> or <textarea>, except Escape which blurs it.
+- Bound keys have their default behaviour prevented (e.g. Tab).
  */
 export function useHotkeys(bindings: Bindings): void {
   const ref = useRef(bindings);
@@ -15,7 +15,7 @@ export function useHotkeys(bindings: Bindings): void {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
 
-      if (target?.tagName === "INPUT") {
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA") {
         if (e.key === "Escape") target.blur();
         return;
       }

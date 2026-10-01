@@ -16,8 +16,8 @@ export default function TandemEditor() {
   const { lines, connected, conflictIndex, editLine } = useTandemSync(WS_URL);
 
   useHotkeys({
-    Tab: () => setTab((t) => (t === "general" ? "editor" : "general")),
-    Enter: () => setTab("editor"),
+    F2: () => setTab((t) => (t === "general" ? "editor" : "general")),
+    F4: () => setTab("editor"),
   });
 
   return (
