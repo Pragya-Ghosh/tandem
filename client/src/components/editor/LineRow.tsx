@@ -6,6 +6,7 @@ interface LineRowProps {
   hasConflict: boolean;
   showVersion: boolean;
   selected: boolean;
+  maxDigits: number;
   onChange: (index: number, content: string) => void;
   onAddLine: (afterIndex: number) => void;
   onRemoveLine: (index: number) => void;
@@ -18,6 +19,7 @@ export function LineRow({
   hasConflict,
   showVersion,
   selected,
+  maxDigits,
   onChange,
   onAddLine,
   onRemoveLine,
@@ -85,6 +87,8 @@ export function LineRow({
     ? "rgba(31, 31, 31, 0.5)"
     : "transparent";
 
+  const digitCount = Math.max(1, maxDigits);
+
   return (
     <div
       className={`flex items-center transition-all py-0 -my-[1px] px-1 rounded-sm border ${
@@ -104,12 +108,16 @@ export function LineRow({
       }
     >
       <div
-        className="w-12 shrink-0 text-[16px] text-dim select-none flex items-center justify-center"
-        style={
-          showVersion
+        className="w-12 text-[16px] text-dim select-none flex items-center justify-end font-mono"
+        style={{
+          width: `${digitCount}ch`,
+          minWidth: `${digitCount}ch`,
+          flexShrink: 0,
+          paddingRight: "8px",
+          ...(showVersion
             ? { borderRight: "1px solid rgba(212, 212, 216, 0.2)", marginRight: "0.25rem" }
-            : undefined
-        }
+            : {}),
+        }}
       >
         {line.index}
       </div>
@@ -123,8 +131,8 @@ export function LineRow({
         spellCheck={false}
         autoComplete="off"
         data-conflict={hasConflict}
-        className="line-input min-w-0 !text-[16px]"
-        style={{ marginLeft: "0.1rem", padding: "0.15rem" }}
+        className="line-input min-w-0 flex-1 !text-[16px]"
+        style={{ padding: "0.15rem" }}
       />
 
       {showVersion && (
