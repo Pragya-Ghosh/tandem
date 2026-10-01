@@ -268,7 +268,6 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
             hasConflict={conflictIndex === line.index}
             showVersion={showVersions}
             selected={allSelected || selectedIndices.has(line.index)}
-            maxDigits={String(localLines.length).length}
             onChange={handleEditLine}
             onAddLine={handleAddLine}
             onRemoveLine={handleRemoveLine}
