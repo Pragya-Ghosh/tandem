@@ -8,6 +8,8 @@ interface TandemSocket {
   /** Index of a line whose edit was just rejected (for a brief highlight). */
   conflictIndex: number | null;
   editLine: (index: number, newContent: string) => void;
+  addLine: (afterIndex: number) => void;
+  removeLine: (index: number) => void;
 }
 
 const replaceLine = (lines: Line[], next: Line): Line[] =>
@@ -54,6 +56,12 @@ export function useTandemSync(url: string): TandemSocket {
           setLines((prev) => replaceLine(prev, message.data));
           break;
 
+        // Handle structural synchronization from server
+        case "line_added":
+        case "line_removed":
+          setLines(message.data);
+          break;
+
         case "edit_rejected": {
           const { lineIndex, authoritativeLine, reason } = message.data;
           console.warn(reason);
@@ -91,5 +99,27 @@ export function useTandemSync(url: string): TandemSocket {
     socket.send(JSON.stringify(message));
   }, []);
 
-  return { lines, connected, conflictIndex, editLine };
+  const addLine = useCallback((afterIndex: number) => {
+    const socket = socketRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+    const message: ClientMessage = {
+      type: "add_line",
+      data: { afterIndex },
+    };
+    socket.send(JSON.stringify(message));
+  }, []);
+
+  const removeLine = useCallback((index: number) => {
+    const socket = socketRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+    const message: ClientMessage = {
+      type: "remove_line",
+      data: { index },
+    };
+    socket.send(JSON.stringify(message));
+  }, []);
+
+  return { lines, connected, conflictIndex, editLine, addLine, removeLine };
 }

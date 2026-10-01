@@ -7,13 +7,13 @@ function setupWebSocketServer(server, documentStore) {
   wss.on('connection', (ws) => {
     console.log('[+] Client connected');
 
-    //send authoritative snapshot upon connection
+    // Send authoritative snapshot upon connection
     sendJson(ws, {
       type: WS_EVENTS.INIT,
       data: documentStore.getSnapshot(),
     });
 
-    //message router
+    // Message router
     ws.on('message', (rawMessage) => {
       try {
         const message = JSON.parse(rawMessage);
@@ -36,21 +36,16 @@ function handleMessage(ws, wss, message, documentStore) {
 
   if (type === WS_EVENTS.EDIT_LINE) {
     const { lineIndex, baseVersion, newContent } = data;
-
     const result = documentStore.applyEdit(lineIndex, baseVersion, newContent);
 
     if (result.success) {
       console.log(`[Edit Accepted] Line ${lineIndex} updated to v${result.line.version}`);
-      
-      //broadcast update to all active connections
       broadcast(wss, {
         type: WS_EVENTS.LINE_UPDATED,
         data: result.line,
       });
     } else {
       console.log(`[Edit Rejected] Stale write on Line ${lineIndex}`);
-
-      //send rejection strictly to the originating client
       sendJson(ws, {
         type: WS_EVENTS.EDIT_REJECTED,
         data: {
@@ -58,6 +53,34 @@ function handleMessage(ws, wss, message, documentStore) {
           authoritativeLine: result.line,
           reason: result.reason,
         },
+      });
+    }
+  }
+
+  // Handle structural addition of lines (Enter key)
+  if (type === "add_line" || type === WS_EVENTS.ADD_LINE) {
+    const { afterIndex } = data;
+    const result = documentStore.addLine?.(afterIndex);
+
+    if (result && result.success) {
+      console.log(`[Line Added] After line ${afterIndex}`);
+      broadcast(wss, {
+        type: WS_EVENTS.LINE_ADDED ?? "line_added",
+        data: result.snapshot ?? documentStore.getSnapshot(),
+      });
+    }
+  }
+
+  // Handle structural removal of lines (Backspace/Delete)
+  if (type === "remove_line" || type === WS_EVENTS.REMOVE_LINE) {
+    const { index } = data;
+    const result = documentStore.removeLine?.(index);
+
+    if (result && result.success) {
+      console.log(`[Line Removed] Line ${index}`);
+      broadcast(wss, {
+        type: WS_EVENTS.LINE_REMOVED ?? "line_removed",
+        data: result.snapshot ?? documentStore.getSnapshot(),
       });
     }
   }

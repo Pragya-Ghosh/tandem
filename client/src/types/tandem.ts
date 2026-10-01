@@ -19,6 +19,8 @@ export interface EditRejectedPayload {
 export type ServerMessage =
   | { type: "init"; data: Line[] }
   | { type: "line_updated"; data: Line }
+  | { type: "line_added"; data: Line[] }
+  | { type: "line_removed"; data: Line[] }
   | { type: "edit_rejected"; data: EditRejectedPayload };
 
 /* ---------- client -> server ---------- */
@@ -29,4 +31,15 @@ export interface EditLinePayload {
   newContent: string;
 }
 
-export type ClientMessage = { type: "edit_line"; data: EditLinePayload };
+export interface AddLinePayload {
+  afterIndex: number;
+}
+
+export interface RemoveLinePayload {
+  index: number;
+}
+
+export type ClientMessage =
+  | { type: "edit_line"; data: EditLinePayload }
+  | { type: "add_line"; data: AddLinePayload }
+  | { type: "remove_line"; data: RemoveLinePayload };

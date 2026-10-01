@@ -7,11 +7,13 @@ interface DocumentPanelProps {
   lines: Line[];
   conflictIndex: number | null;
   onEditLine: (index: number, content: string) => void;
+  onAddLine?: (afterIndex: number) => void;
+  onRemoveLine?: (index: number) => void;
 }
 
 const renumber = (lines: Line[]): Line[] => lines.map((l, i) => ({ ...l, index: i + 1 }));
 
-export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPanelProps) {
+export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onRemoveLine }: DocumentPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [localLines, setLocalLines] = useState<Line[]>([{ index: 1, version: 0, content: "" }]);
   const [showVersions, setShowVersions] = useState(false);
@@ -45,10 +47,12 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
       next.splice(pos, 0, { index: afterIndex + 1, version: 0, content: "" });
       return renumber(next);
     });
+    onAddLine?.(afterIndex);
   };
 
   const handleRemoveLine = (index: number) => {
     setLocalLines((prev) => (prev.length <= 1 ? prev : renumber(prev.filter((l) => l.index !== index))));
+    onRemoveLine?.(index);
   };
 
   /** Multi-line paste: split into lines, splice them in at the cursor. */
