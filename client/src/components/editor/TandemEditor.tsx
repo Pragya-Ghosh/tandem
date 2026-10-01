@@ -24,7 +24,7 @@ export default function TandemEditor() {
     <main className="tandem-root flex min-h-screen justify-center p-[clamp(1rem,3vw,2.5rem)] text-sm select-none sm:text-base bg-page">
       <div className="flex w-full max-w-4xl flex-col gap-3">
         <EditorHeader activeTab={tab} onSelectTab={setTab} />
-
+        
         <Box className="relative flex flex-col min-h-[60vh] max-h-[85vh] h-[80vh] justify-between p-[clamp(1.2rem,3vw,2.2rem)]">
           {tab === "general" ? (
             <OverviewPanel lines={lines} connected={connected} />

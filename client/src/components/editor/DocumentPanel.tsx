@@ -129,7 +129,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
   };
 
   return (
-    <Box title="Active Document" className="mt-2 flex min-h-0 flex-1 flex-col p-3">
+    <Box title="Active Document" className="mt-2 flex h-full min-h-0 flex-1 flex-col p-3">
       <div
         ref={containerRef}
         onClick={handleContainerClick}
@@ -137,7 +137,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
         onMouseDownCapture={() => setAllSelected(false)}
         onCopy={handleCopy}
         onCut={handleCut}
-        className="flex-1 overflow-y-auto cursor-text px-2 pb-12"
+        className="h-0 flex-1 overflow-y-auto cursor-text px-2 pb-12 overscroll-contain"
       >
         {localLines.map((line) => (
           <LineRow
