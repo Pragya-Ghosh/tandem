@@ -40,6 +40,20 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
       onRemoveLine(line.index);
       if (prev) prev.focus();
     }
+
+    else if (e.key === "Tab") {
+      e.preventDefault();
+      const start = target.selectionStart ?? target.value.length;
+      const end = target.selectionEnd ?? target.value.length;
+      const spaces = "  "; 
+      const newValue = target.value.substring(0, start) + spaces + target.value.substring(end);
+      
+      onChange(line.index, newValue);
+      
+      setTimeout(() => {
+        target.setSelectionRange(start + spaces.length, start + spaces.length);
+      }, 0);
+    }
   };
 
   return (
