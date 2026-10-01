@@ -57,7 +57,7 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
 
   return (
     <div 
-      className={`flex items-center transition-all py-0.5 my-0.5 px-1 rounded-sm border ${
+      className={`flex items-center transition-all py-0 -my-[1px] px-1 rounded-sm border ${
         hasConflict ? "bg-red-900/30 border-red-500" : ""
       }`}
       style={
@@ -90,7 +90,7 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
         autoComplete="off"
         data-conflict={hasConflict}
         className="line-input min-w-0 !text-[18px]"
-        style={{ marginLeft: "0.3rem", padding: "0.3rem"}}
+        style={{ marginLeft: "0.1rem", padding: "0.15rem" }}
       />
       
       {showVersion && (
