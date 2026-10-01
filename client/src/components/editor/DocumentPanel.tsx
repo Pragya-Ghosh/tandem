@@ -146,6 +146,25 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
   const handleKeyDownCapture = (e: React.KeyboardEvent) => {
     const mod = e.ctrlKey || e.metaKey;
 
+    if (e.key === "Escape") {
+      const isInputFocused = document.activeElement?.tagName === "INPUT" && containerRef.current?.contains(document.activeElement);
+      const hasSelection = allSelected || selectedIndices.size > 0;
+
+      if (hasSelection || isInputFocused) {
+        e.preventDefault();
+        e.stopPropagation();
+        setAllSelected(false);
+        setSelectedIndices(new Set());
+        
+        if (isInputFocused) {
+          (document.activeElement as HTMLElement).blur(); // Forces the active line to visually leave focus
+        }
+        
+        containerRef.current?.focus({ preventScroll: true }); // Keeps the keyboard trap active
+        return;
+      }
+    }
+
     if (mod && e.key.toLowerCase() === "a") {
       e.preventDefault();
       setAllSelected(true);
@@ -154,7 +173,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
     }
 
     if (!allSelected && selectedIndices.size === 0) return;
-    if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) return;
+    if (["Shift", "Control", "Alt", "Meta", "Escape"].includes(e.key)) return;
     if (mod && ["c", "x"].includes(e.key.toLowerCase())) return;
 
     if (e.key === "Tab") {
@@ -187,7 +206,11 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     const lineNumDiv = target.closest(".w-12");
+
     if (lineNumDiv && containerRef.current?.contains(lineNumDiv)) {
+      // Pull focus directly to the container so onKeyDownCapture fires
+      containerRef.current.focus({ preventScroll: true });
+
       const lineIndexText = lineNumDiv.textContent?.trim();
       const lineIndex = parseInt(lineIndexText || "", 10);
       if (!isNaN(lineIndex)) {
@@ -209,8 +232,8 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
               next.add(lineIndex);
             }
           } else {
-            if (next.size === 1 && next.has(lineIndex)) {
-              next.clear();
+            if (next.has(lineIndex)) {
+              next.delete(lineIndex);
             } else {
               next.clear();
               next.add(lineIndex);
@@ -222,30 +245,21 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
       }
     }
 
-    if (e.target === containerRef.current) {
-      setAllSelected(false);
-      setSelectedIndices(new Set());
-      const inputs = containerRef.current.querySelectorAll("input");
-      if (inputs.length > 0) inputs[inputs.length - 1].focus();
-    }
+    // Clicking anywhere outside the line numbers (text, inputs, or whitespace) clears selection
+    setAllSelected(false);
+    setSelectedIndices(new Set());
   };
 
   return (
     <Box title="Active Document" className="mt-2 flex h-full min-h-0 flex-1 flex-col p-3">
       <div
         ref={containerRef}
+        tabIndex={-1}
         onClick={handleContainerClick}
         onKeyDownCapture={handleKeyDownCapture}
-        onMouseDownCapture={(e) => {
-          const target = e.target as HTMLElement;
-          if (!target.closest(".w-12") && !target.closest("input")) {
-            setAllSelected(false);
-            setSelectedIndices(new Set());
-          }
-        }}
         onCopy={handleCopy}
         onCut={handleCut}
-        className="h-0 flex-1 overflow-y-auto cursor-text px-2 pb-12 overscroll-contain"
+        className="outline-none h-0 flex-1 overflow-y-auto cursor-text px-2 pb-12 overscroll-contain"
       >
         {localLines.map((line) => (
           <LineRow
