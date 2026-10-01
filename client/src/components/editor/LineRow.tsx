@@ -44,11 +44,7 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
 
   return (
     <div className="flex items-center">
-      
-      {/* 
-        Line Numbers: 
-        w-12 gives it enough width, text-[18px] explicitly forces the size 
-      */}
+
       <div className="w-12 shrink-0 pr-3 text-right text-[18px] text-dim select-none border-r border-dim">
         {line.index}
       </div>
@@ -62,7 +58,7 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
         autoComplete="off"
         data-conflict={hasConflict}
 
-        className="line-input ml-3 min-w-0 !text-[16px]"
+        className="line-input ml-3 min-w-0 !text-[18px]"
       />
       
       {showVersion && (
