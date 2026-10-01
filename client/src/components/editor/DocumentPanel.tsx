@@ -1,6 +1,7 @@
 import type { Line } from "@/types/tandem";
 import { LineRow } from "./LineRow";
 import { Box } from "@/components/ui";
+import { useRef, useState, useEffect } from "react";
 
 interface DocumentPanelProps {
   lines: Line[];
@@ -9,21 +10,81 @@ interface DocumentPanelProps {
 }
 
 export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPanelProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const [localLines, setLocalLines] = useState<Line[]>([{ index: 1, version: 0, content: "" }]);
+  
+  // New state: true only while holding the 'Alt' key
+  const [showVersions, setShowVersions] = useState(false);
+
+  useEffect(() => {
+    if (lines.length > 0) {
+      setLocalLines(lines);
+    }
+  }, [lines]);
+
+  // Listen for the Alt key being pressed and released
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Alt") setShowVersions(true); };
+    const handleKeyUp = (e: KeyboardEvent) => { if (e.key === "Alt") setShowVersions(false); };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    
+    return () => { 
+      window.removeEventListener("keydown", handleKeyDown); 
+      window.removeEventListener("keyup", handleKeyUp); 
+    };
+  }, []);
+
+  const handleEditLine = (index: number, content: string) => {
+    setLocalLines(prev => prev.map(l => (l.index === index ? { ...l, content } : l)));
+    onEditLine(index, content);
+  };
+
+  const handleAddLine = (afterIndex: number) => {
+    setLocalLines(prev => {
+      const newLines = [...prev];
+      const insertPos = newLines.findIndex(l => l.index === afterIndex) + 1;
+      newLines.splice(insertPos, 0, { index: afterIndex + 1, version: 0, content: "" });
+      return newLines.map((l, i) => ({ ...l, index: i + 1 }));
+    });
+  };
+
+  const handleRemoveLine = (index: number) => {
+    setLocalLines(prev => {
+      if (prev.length <= 1) return prev; 
+      const newLines = prev.filter(l => l.index !== index);
+      return newLines.map((l, i) => ({ ...l, index: i + 1 }));
+    });
+  };
+
+  const handleContainerClick = (e: React.MouseEvent) => {
+    if (e.target === containerRef.current) {
+      const inputs = containerRef.current.querySelectorAll("input");
+      if (inputs.length > 0) {
+        inputs[inputs.length - 1].focus();
+      }
+    }
+  };
+
   return (
     <Box title="Active Document" className="mt-2 flex flex-1 flex-col p-3">
       <div 
-        className="flex-1 space-y-0.5 overflow-y-auto" 
-        style={{ paddingLeft: "16px" }}
+        ref={containerRef}
+        onClick={handleContainerClick}
+        // space-y-0.5 removed so lines sit flush with no gaps!
+        className="flex-1 overflow-y-auto cursor-text px-2 pb-12" 
       >
-        {lines.length === 0 && (
-          <p className="fg-dim">No lines yet. Is the server running?</p>
-        )}
-        {lines.map((line) => (
+        {localLines.map((line) => (
           <LineRow
             key={line.index}
             line={line}
             hasConflict={conflictIndex === line.index}
-            onChange={onEditLine}
+            showVersion={showVersions} // Pass the shortcut state down
+            onChange={handleEditLine}
+            onAddLine={handleAddLine}
+            onRemoveLine={handleRemoveLine}
           />
         ))}
       </div>
