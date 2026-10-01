@@ -40,7 +40,6 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
       onRemoveLine(line.index);
       if (prev) prev.focus();
     }
-
     else if (e.key === "Tab") {
       e.preventDefault();
       const start = target.selectionStart ?? target.value.length;
@@ -72,11 +71,11 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
     >
       
       <div 
-        className="w-12 shrink-0 text-right text-[18px] text-dim select-none"
+        className="w-12 shrink-0 text-[18px] text-dim select-none flex items-center justify-center"
         style={
           showVersion 
-            ? { borderRight: "1px solid rgba(212, 212, 216, 0.2)", paddingRight: "0.75rem", marginRight: "0.25rem" } 
-            : { paddingRight: "0.75rem" }
+            ? { borderRight: "1px solid rgba(212, 212, 216, 0.2)", marginRight: "0.25rem" } 
+            : undefined
         }
       >
         {line.index}
@@ -90,12 +89,13 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
         spellCheck={false}
         autoComplete="off"
         data-conflict={hasConflict}
-        className="line-input ml-3 min-w-0 !text-[18px]"
+        className="line-input min-w-0 !text-[18px]"
+        style={{ marginLeft: "0.3rem", padding: "0.3rem"}}
       />
       
       {showVersion && (
         <div 
-          className="text-[16px] font-mono text-teal-400 px-2 py-0.5 select-none ml-4 mr-2 shadow-sm"
+          className="text-[16px] font-mono text-teal-400 px-2 py-0.5 select-none ml-4 mr-2 shadow-sm shrink-0"
           style={{
             backgroundColor: "#1f1f1f",
             border: "1px solid rgba(212, 212, 216, 0.3)"
