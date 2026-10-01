@@ -7,7 +7,7 @@ interface KeyHintsProps {
   connected: boolean;
 }
 
-/** Keybinding hints drawn on the bottom border of the parent Box. */
+/* Keybinding hints drawn on the bottom border of the parent Box. */
 export function KeyHints({ tab, connected }: KeyHintsProps) {
   return (
     <div className="absolute right-4 -bottom-[0.7em] left-4 flex leading-none">

@@ -4,7 +4,7 @@ import { KeyboardEvent } from "react";
 interface LineRowProps {
   line: Line;
   hasConflict: boolean;
-  showVersion: boolean; // Receive the new prop
+  showVersion: boolean; 
   onChange: (index: number, content: string) => void;
   onAddLine: (afterIndex: number) => void;
   onRemoveLine: (index: number) => void;
@@ -43,9 +43,13 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
   };
 
   return (
-    <div className={`flex items-center ${hasConflict ? "bg-red-900/30" : ""}`}>
+    <div className="flex items-center">
       
-      <div className="w-8 shrink-0 pr-3 text-right text-xs text-dim select-none border-r border-dim">
+      {/* 
+        Line Numbers: 
+        w-12 gives it enough width, text-[18px] explicitly forces the size 
+      */}
+      <div className="w-12 shrink-0 pr-3 text-right text-[18px] text-dim select-none border-r border-dim">
         {line.index}
       </div>
 
@@ -56,15 +60,13 @@ export function LineRow({ line, hasConflict, showVersion, onChange, onAddLine, o
         onKeyDown={handleKeyDown}
         spellCheck={false}
         autoComplete="off"
-        // Added aggressive resets: border-none focus:outline-none focus:ring-0 shadow-none
-        className={`ml-3 min-w-0 flex-1 bg-transparent py-0.5 border-none outline-none focus:outline-none focus:ring-0 shadow-none font-mono text-sm sm:text-base ${
-          hasConflict ? "text-red-400" : "text-inherit"
-        }`}
+        data-conflict={hasConflict}
+
+        className="line-input ml-3 min-w-0 !text-[16px]"
       />
       
-      {/* Only renders when the Alt key is held down! */}
       {showVersion && (
-        <div className="text-xs text-teal-500 select-none pl-2 pr-2">
+        <div className="text-[14px] text-teal-500 select-none pl-2 pr-2">
           v{line.version}
         </div>
       )}
