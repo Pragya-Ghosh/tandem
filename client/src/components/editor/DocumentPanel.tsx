@@ -16,6 +16,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
   const [localLines, setLocalLines] = useState<Line[]>([{ index: 1, version: 0, content: "" }]);
   const [showVersions, setShowVersions] = useState(false);
   const [allSelected, setAllSelected] = useState(false);
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (lines.length > 0) setLocalLines(lines);
@@ -85,46 +86,145 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
     }, 0);
   };
 
-  /* ---------- select-all (Ctrl/Cmd + A) & clear ---------- */
+  /* ---------- select, delete, and tab handling ---------- */
 
-  const joined = () => localLines.map((l) => l.content).join("\n");
-  
-  const clearAll = () => {
-    // Resets document to a single empty line so extra line numbers disappear
-    setLocalLines([{ index: 1, version: 0, content: "" }]);
-    onEditLine(1, "");
+  const joinedSelected = () =>
+    localLines
+      .filter((l) => allSelected || selectedIndices.has(l.index))
+      .map((l) => l.content)
+      .join("\n");
+
+  const handleDeleteSelected = () => {
+    const sortedSelected = Array.from(selectedIndices).sort((a, b) => a - b);
+    const firstDeletedIndex = sortedSelected[0] ?? 1;
+
+    if (allSelected || selectedIndices.size >= localLines.length) {
+      setLocalLines([{ index: 1, version: 0, content: "" }]);
+      setAllSelected(false);
+      setSelectedIndices(new Set());
+      onEditLine(1, "");
+      return;
+    }
+
+    const remaining = localLines.filter((l) => !selectedIndices.has(l.index));
+    const newLines = remaining.length > 0 ? renumber(remaining) : [{ index: 1, version: 0, content: "" }];
+
+    setLocalLines(newLines);
+    setAllSelected(false);
+    setSelectedIndices(new Set());
+
+    newLines.forEach((l) => onEditLine(l.index, l.content));
+
+    // Focus the line closest to where the deletion happened 
+    setTimeout(() => {
+      const inputs = containerRef.current?.querySelectorAll("input");
+      if (inputs && inputs.length > 0) {
+        const targetInputIndex = Math.min(firstDeletedIndex - 1, inputs.length - 1);
+        inputs[Math.max(0, targetInputIndex)]?.focus();
+      }
+    }, 0);
+  };
+
+  const handleTabSelected = (shift: boolean) => {
+    setLocalLines((prev) =>
+      prev.map((l) => {
+        if (!allSelected && !selectedIndices.has(l.index)) return l;
+        if (shift) {
+          if (l.content.startsWith("  ")) {
+            return { ...l, content: l.content.substring(2) };
+          } else if (l.content.startsWith(" ")) {
+            return { ...l, content: l.content.substring(1) };
+          }
+          return l;
+        } else {
+          return { ...l, content: "  " + l.content };
+        }
+      })
+    );
   };
 
   const handleKeyDownCapture = (e: React.KeyboardEvent) => {
-    if (!allSelected) return;
-    if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) return;
     const mod = e.ctrlKey || e.metaKey;
-    if (mod && ["a", "c", "x"].includes(e.key.toLowerCase())) return;
+
+    if (mod && e.key.toLowerCase() === "a") {
+      e.preventDefault();
+      setAllSelected(true);
+      setSelectedIndices(new Set(localLines.map((l) => l.index)));
+      return;
+    }
+
+    if (!allSelected && selectedIndices.size === 0) return;
+    if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) return;
+    if (mod && ["c", "x"].includes(e.key.toLowerCase())) return;
+
+    if (e.key === "Tab") {
+      e.preventDefault();
+      e.stopPropagation();
+      handleTabSelected(e.shiftKey);
+      return;
+    }
 
     if (e.key === "Backspace" || e.key === "Delete") {
       e.preventDefault();
-      e.stopPropagation(); // don't let LineRow remove a line
-      clearAll();
+      e.stopPropagation();
+      handleDeleteSelected();
     }
-    setAllSelected(false);
   };
 
   const handleCopy = (e: React.ClipboardEvent) => {
-    if (!allSelected) return;
+    if (!allSelected && selectedIndices.size === 0) return;
     e.preventDefault();
-    e.clipboardData.setData("text/plain", joined());
+    e.clipboardData.setData("text/plain", joinedSelected());
   };
 
   const handleCut = (e: React.ClipboardEvent) => {
-    if (!allSelected) return;
+    if (!allSelected && selectedIndices.size === 0) return;
     e.preventDefault();
-    e.clipboardData.setData("text/plain", joined());
-    clearAll();
-    setAllSelected(false);
+    e.clipboardData.setData("text/plain", joinedSelected());
+    handleDeleteSelected();
   };
 
-  const handleContainerClick = (e: React.MouseEvent) => {
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const lineNumDiv = target.closest(".w-12");
+    if (lineNumDiv && containerRef.current?.contains(lineNumDiv)) {
+      const lineIndexText = lineNumDiv.textContent?.trim();
+      const lineIndex = parseInt(lineIndexText || "", 10);
+      if (!isNaN(lineIndex)) {
+        e.stopPropagation();
+        setAllSelected(false);
+        setSelectedIndices((prev) => {
+          const next = new Set(prev);
+          if (e.shiftKey && next.size > 0) {
+            const lastSelected = Array.from(next).pop() || lineIndex;
+            const start = Math.min(lastSelected, lineIndex);
+            const end = Math.max(lastSelected, lineIndex);
+            for (let i = start; i <= end; i++) {
+              next.add(i);
+            }
+          } else if (e.ctrlKey || e.metaKey) {
+            if (next.has(lineIndex)) {
+              next.delete(lineIndex);
+            } else {
+              next.add(lineIndex);
+            }
+          } else {
+            if (next.size === 1 && next.has(lineIndex)) {
+              next.clear();
+            } else {
+              next.clear();
+              next.add(lineIndex);
+            }
+          }
+          return next;
+        });
+        return;
+      }
+    }
+
     if (e.target === containerRef.current) {
+      setAllSelected(false);
+      setSelectedIndices(new Set());
       const inputs = containerRef.current.querySelectorAll("input");
       if (inputs.length > 0) inputs[inputs.length - 1].focus();
     }
@@ -136,7 +236,13 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
         ref={containerRef}
         onClick={handleContainerClick}
         onKeyDownCapture={handleKeyDownCapture}
-        onMouseDownCapture={() => setAllSelected(false)}
+        onMouseDownCapture={(e) => {
+          const target = e.target as HTMLElement;
+          if (!target.closest(".w-12") && !target.closest("input")) {
+            setAllSelected(false);
+            setSelectedIndices(new Set());
+          }
+        }}
         onCopy={handleCopy}
         onCut={handleCut}
         className="h-0 flex-1 overflow-y-auto cursor-text px-2 pb-12 overscroll-contain"
@@ -147,11 +253,14 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
             line={line}
             hasConflict={conflictIndex === line.index}
             showVersion={showVersions}
-            selected={allSelected}
+            selected={allSelected || selectedIndices.has(line.index)}
             onChange={handleEditLine}
             onAddLine={handleAddLine}
             onRemoveLine={handleRemoveLine}
-            onSelectAll={() => setAllSelected(true)}
+            onSelectAll={() => {
+              setAllSelected(true);
+              setSelectedIndices(new Set(localLines.map((l) => l.index)));
+            }}
             onPasteLines={handlePasteLines}
           />
         ))}
