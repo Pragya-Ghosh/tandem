@@ -85,13 +85,15 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine }: DocumentPane
     }, 0);
   };
 
-  /* ---------- select-all (Ctrl/Cmd + A) ---------- */
+  /* ---------- select-all (Ctrl/Cmd + A) & clear ---------- */
 
   const joined = () => localLines.map((l) => l.content).join("\n");
-  const clearAll = () =>
-    localLines.forEach((l) => {
-      if (l.content) handleEditLine(l.index, "");
-    });
+  
+  const clearAll = () => {
+    // Resets document to a single empty line so extra line numbers disappear
+    setLocalLines([{ index: 1, version: 0, content: "" }]);
+    onEditLine(1, "");
+  };
 
   const handleKeyDownCapture = (e: React.KeyboardEvent) => {
     if (!allSelected) return;
