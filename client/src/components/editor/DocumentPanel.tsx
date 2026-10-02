@@ -23,23 +23,19 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
   const [allSelected, setAllSelected] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
 
-  // FIX: Queue to hold edits for newly created lines until the server confirms them
   const pendingEditsRef = useRef<Map<string, string>>(new Map());
-  
-  // Optimization: Prevents server broadcast spam from locking up the UI during mass deletes/pastes
   const ignoreSyncTimer = useRef<NodeJS.Timeout | null>(null);
 
   const runOptimistic = (fn: () => void) => {
     if (ignoreSyncTimer.current) clearTimeout(ignoreSyncTimer.current);
     ignoreSyncTimer.current = setTimeout(() => {
       ignoreSyncTimer.current = null;
-    }, 1200); // Increased to 1.2s to smoothly absorb huge multi-line paste/delete network lag
+    }, 1200);
     fn();
   };
 
   useEffect(() => {
     if (lines.length > 0) {
-      // FIX: The second the server confirms our new pasted lines, fire their content edits!
       if (pendingEditsRef.current.size > 0) {
         pendingEditsRef.current.forEach((content, id) => {
           const serverLine = lines.find((l) => l.id === id);
@@ -50,9 +46,25 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
         });
       }
 
-      // Only apply server state if we aren't mid-bulk operation
       if (!ignoreSyncTimer.current) {
-        setLocalLines(lines);
+        setLocalLines((prevLocal) => {
+          // Cleanly find the focused line without adding any wrapper divs to the DOM
+          const activeInput = document.activeElement as HTMLInputElement;
+          const inputs = Array.from(containerRef.current?.querySelectorAll("input") || []);
+          const focusedIndex = inputs.indexOf(activeInput);
+          const focusedLineId = focusedIndex >= 0 ? prevLocal[focusedIndex]?.id : null;
+
+          return lines.map((incoming) => {
+            const existing = prevLocal.find((l) => l.id === incoming.id) || prevLocal.find((l) => l.index === incoming.index);
+            const isFocused = existing && existing.id === focusedLineId;
+
+            return {
+              ...incoming,
+              content: isFocused ? existing.content : incoming.content,
+              id: incoming.id || existing?.id || generateId(),
+            };
+          });
+        });
       }
     }
   }, [lines, onEditLine]);
@@ -75,6 +87,10 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
 
   const handleAddLine = (afterIndex: number) => {
     runOptimistic(() => {
+      // Clear selection box so it doesn't glitch onto the new line
+      setAllSelected(false);
+      setSelectedIndices(new Set());
+
       const newId = generateId(); 
       setLocalLines((prev) => {
         const next = [...prev];
@@ -88,12 +104,15 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
 
   const handleRemoveLine = (index: number) => {
     runOptimistic(() => {
+      // Clear selection box so it doesn't glitch as lines shift up
+      setAllSelected(false);
+      setSelectedIndices(new Set());
+
       setLocalLines((prev) => (prev.length <= 1 ? prev : renumber(prev.filter((l) => l.index !== index))));
       onRemoveLine?.(index);
     });
   };
 
-  /** Multi-line paste: split into lines, splice them in at the cursor. */
   const handlePasteLines = (index: number, start: number, end: number, text: string) => {
     runOptimistic(() => {
       const pieces = text.replace(/\r\n?/g, "\n").split("\n");
@@ -107,13 +126,12 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
       pieces[0] = before + pieces[0];
       pieces[pieces.length - 1] += after;
 
-      // FIX: Pre-generate IDs so local state perfectly matches the server request
       const newIds = pieces.slice(1).map(() => generateId());
 
       setLocalLines((prev) => {
         const pos = prev.findIndex((l) => l.index === index);
         const replaced: Line[] = pieces.map((content, i) => ({
-          id: i === 0 ? target.id : newIds[i - 1], // Attach the exact IDs
+          id: i === 0 ? target.id : newIds[i - 1], 
           index: 0,
           version: i === 0 ? target.version : 0,
           content,
@@ -128,7 +146,6 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
         const newId = newIds[i - 1];
         onAddLine?.(currIndex, newId);
         
-        // FIX: Queue the edit safely until the hook sees the new line
         pendingEditsRef.current.set(newId, pieces[i]);
         currIndex++;
       }
@@ -341,23 +358,22 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
         className="outline-none h-0 flex-1 overflow-y-auto cursor-text px-2 pb-12 overscroll-contain"
       >
         {localLines.map((line) => (
-          <div key={line.id || line.index} data-line-id={line.id || line.index}>
-            <LineRow
-              line={line}
-              hasConflict={conflictIndex === line.index}
-              showVersion={showVersions}
-              selected={allSelected || selectedIndices.has(line.index)}
-              maxDigits={String(localLines.length).length}
-              onChange={handleEditLine}
-              onAddLine={handleAddLine}
-              onRemoveLine={handleRemoveLine}
-              onSelectAll={() => {
-                setAllSelected(true);
-                setSelectedIndices(new Set(localLines.map((l) => l.index)));
-              }}
-              onPasteLines={handlePasteLines}
-            />
-          </div>
+          <LineRow
+            key={line.id || line.index} 
+            line={line}
+            hasConflict={conflictIndex === line.index}
+            showVersion={showVersions}
+            selected={allSelected || selectedIndices.has(line.index)}
+            maxDigits={String(localLines.length).length}
+            onChange={handleEditLine}
+            onAddLine={handleAddLine}
+            onRemoveLine={handleRemoveLine}
+            onSelectAll={() => {
+              setAllSelected(true);
+              setSelectedIndices(new Set(localLines.map((l) => l.index)));
+            }}
+            onPasteLines={handlePasteLines}
+          />
         ))}
       </div>
     </Box>
