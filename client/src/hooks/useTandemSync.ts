@@ -31,6 +31,10 @@ export function useTandemSync(url: string): TandemSocket {
   const linesRef = useRef<Line[]>([]);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Debounce timers and base version trackers per line index (600ms window)
+  const typingTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const baseVersionsRef = useRef<Map<number, number>>(new Map());
+
   const commit = useCallback((next: Line[]) => {
     linesRef.current = next;
     setLines(next);
@@ -91,6 +95,7 @@ export function useTandemSync(url: string): TandemSocket {
 
     return () => {
       if (flashTimer.current) clearTimeout(flashTimer.current);
+      typingTimersRef.current.forEach(clearTimeout);
       socket.close();
     };
   }, [url, commit]);
@@ -101,21 +106,53 @@ export function useTandemSync(url: string): TandemSocket {
       const target = linesRef.current.find((l) => l.index === index);
       if (!target) return;
 
+      // 1. Instantly update local mirror content without inflating version per keystroke
       commit(
         replaceLine(linesRef.current, {
           ...target,
           content: newContent,
-          version: target.version + 1,
         })
       );
 
-      if (socket?.readyState === WebSocket.OPEN) {
-        const message: ClientMessage = {
-          type: "edit_line",
-          data: { lineIndex: index, baseVersion: target.version, newContent },
-        };
-        socket.send(JSON.stringify(message));
+      // Track the base version when typing starts for this burst
+      if (!baseVersionsRef.current.has(index)) {
+        baseVersionsRef.current.set(index, target.version);
       }
+
+      // Clear existing debounce timer for this line
+      const timers = typingTimersRef.current;
+      if (timers.has(index)) {
+        clearTimeout(timers.get(index)!);
+      }
+
+      // 2. Debounce WebSocket transmission by 600ms (Professional IDE standard)
+      const timer = setTimeout(() => {
+        timers.delete(index);
+        const baseVersion = baseVersionsRef.current.get(index) ?? target.version;
+        baseVersionsRef.current.delete(index);
+
+        const currentTarget = linesRef.current.find((l) => l.index === index);
+        if (!currentTarget) return;
+
+        // Bump version cleanly upon committing the debounced edit batch
+        const nextVersion = currentTarget.version + 1;
+        commit(
+          replaceLine(linesRef.current, {
+            ...currentTarget,
+            version: nextVersion,
+          })
+        );
+
+        if (socket?.readyState === WebSocket.OPEN) {
+          const message: ClientMessage = {
+            type: "edit_line",
+            data: { lineIndex: index, baseVersion, newContent },
+          };
+          socket.send(JSON.stringify(message));
+        }
+      }, 600);
+
+      timers.set(index, timer);
     },
     [commit]
   );
@@ -125,7 +162,6 @@ export function useTandemSync(url: string): TandemSocket {
       const socket = socketRef.current;
       const newId = id || generateId();
 
-      // OPTIMISTIC LOCAL STRUCTURAL UPDATE: Instantly insert line locally
       const currentLines = linesRef.current;
       const pos = currentLines.findIndex((l) => l.index === afterIndex);
       const insertIdx = pos !== -1 ? pos + 1 : currentLines.length;
@@ -156,7 +192,6 @@ export function useTandemSync(url: string): TandemSocket {
       const currentLines = linesRef.current;
       if (currentLines.length <= 1) return;
 
-      // OPTIMISTIC LOCAL STRUCTURAL UPDATE: Instantly remove line locally
       const nextLines = currentLines.filter((l) => l.index !== index);
       commit(renumber(nextLines));
 
