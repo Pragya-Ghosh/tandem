@@ -1,6 +1,7 @@
 /** Domain types + the WebSocket wire protocol. */
 
 export interface Line {
+  id: string; 
   index: number;
   version: number;
   content: string;
@@ -17,11 +18,11 @@ export interface EditRejectedPayload {
 }
 
 export type ServerMessage =
-  | { type: "init"; data: Line[] }
-  | { type: "line_updated"; data: Line }
-  | { type: "line_added"; data: Line[] }
-  | { type: "line_removed"; data: Line[] }
-  | { type: "edit_rejected"; data: EditRejectedPayload };
+  | { type: "init" | "INIT"; data: Line[] }
+  | { type: "line_updated" | "LINE_UPDATED"; data: Line }
+  | { type: "line_added" | "LINE_ADDED"; data: Line[] }
+  | { type: "line_removed" | "LINE_REMOVED"; data: Line[] }
+  | { type: "edit_rejected" | "EDIT_REJECTED"; data: EditRejectedPayload };
 
 /* ---------- client -> server ---------- */
 
@@ -33,6 +34,7 @@ export interface EditLinePayload {
 
 export interface AddLinePayload {
   afterIndex: number;
+  id?: string;
 }
 
 export interface RemoveLinePayload {
