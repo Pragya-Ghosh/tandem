@@ -1,9 +1,12 @@
+const generateId = () => Math.random().toString(36).substring(2, 9);
+
 class DocumentStore {
   constructor(initialLines = []) {
+    // Inject stable IDs into the initial document state
     this.lines = initialLines.length > 0 ? initialLines : [
-      { index: 1, version: 1, content: "function initialize() {" },
-      { index: 2, version: 1, content: "  console.log('Tandem is live!');" },
-      { index: 3, version: 1, content: "}" },
+      { id: generateId(), index: 1, version: 1, content: "function initialize() {" },
+      { id: generateId(), index: 2, version: 1, content: "  console.log('Tandem is live!');" },
+      { id: generateId(), index: 3, version: 1, content: "}" },
     ];
   }
 
@@ -16,14 +19,12 @@ class DocumentStore {
    * Validates and applies an OCC edit operation.
    */
   applyEdit(lineIndex, baseVersion, newContent) {
-    // Safely find the line by its index property rather than raw array offset
     const line = this.lines.find((l) => l.index === lineIndex);
 
     if (!line) {
       return { success: false, reason: `Line ${lineIndex} does not exist.` };
     }
 
-    // --- OCC VALIDATION ---
     if (baseVersion !== line.version) {
       return {
         success: false,
@@ -32,7 +33,6 @@ class DocumentStore {
       };
     }
 
-    // Accept and Mutate
     line.content = newContent;
     line.version += 1;
 
@@ -44,19 +44,21 @@ class DocumentStore {
 
   /**
    * Handles adding a new line (triggered by Enter key).
+   * Accepts an optional clientId so the client doesn't lose focus while waiting.
    */
-  addLine(afterIndex) {
+  addLine(afterIndex, clientId) {
     const pos = this.lines.findIndex((l) => l.index === afterIndex);
     const insertIdx = pos !== -1 ? pos + 1 : this.lines.length;
 
-    // Insert a blank line
+    // Insert a blank line with a stable ID
     this.lines.splice(insertIdx, 0, {
+      id: clientId || generateId(),
       index: 0, // temporary
       version: 1,
       content: "",
     });
 
-    // Renumber to maintain clean 1-based indexing
+    // Renumber to maintain 1-based indexing, BUT KEEP THE STABLE IDs
     this.lines = this.lines.map((l, i) => ({ ...l, index: i + 1 }));
 
     return {
@@ -75,7 +77,7 @@ class DocumentStore {
 
     this.lines = this.lines.filter((l) => l.index !== index);
     
-    // Renumber remaining lines
+    // Renumber remaining lines, BUT KEEP THE STABLE IDs
     this.lines = this.lines.map((l, i) => ({ ...l, index: i + 1 }));
 
     return {

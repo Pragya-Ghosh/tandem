@@ -58,29 +58,29 @@ function handleMessage(ws, wss, message, documentStore) {
   }
 
   // Handle structural addition of lines (Enter key)
-  if (type === "add_line" || type === WS_EVENTS.ADD_LINE) {
-    const { afterIndex } = data;
-    const result = documentStore.addLine?.(afterIndex);
+  if (type === WS_EVENTS.ADD_LINE) {
+    const { afterIndex, id } = data; // <-- Extract the ID here!
+    const result = documentStore.addLine(afterIndex, id);
 
     if (result && result.success) {
       console.log(`[Line Added] After line ${afterIndex}`);
       broadcast(wss, {
-        type: WS_EVENTS.LINE_ADDED ?? "line_added",
-        data: result.snapshot ?? documentStore.getSnapshot(),
+        type: WS_EVENTS.LINE_ADDED,
+        data: result.snapshot,
       });
     }
   }
 
   // Handle structural removal of lines (Backspace/Delete)
-  if (type === "remove_line" || type === WS_EVENTS.REMOVE_LINE) {
+  if (type === WS_EVENTS.REMOVE_LINE) {
     const { index } = data;
-    const result = documentStore.removeLine?.(index);
+    const result = documentStore.removeLine(index);
 
     if (result && result.success) {
       console.log(`[Line Removed] Line ${index}`);
       broadcast(wss, {
-        type: WS_EVENTS.LINE_REMOVED ?? "line_removed",
-        data: result.snapshot ?? documentStore.getSnapshot(),
+        type: WS_EVENTS.LINE_REMOVED,
+        data: result.snapshot,
       });
     }
   }
