@@ -8,7 +8,7 @@ interface TandemSocket {
   /** Index of a line whose edit was just rejected (for a brief highlight). */
   conflictIndex: number | null;
   editLine: (index: number, newContent: string) => void;
-  addLine: (afterIndex: number) => void;
+  addLine: (afterIndex: number, id?: string) => void;
   removeLine: (index: number) => void;
 }
 
@@ -41,7 +41,11 @@ export function useTandemSync(url: string): TandemSocket {
     socket.onmessage = (event) => {
       let message: ServerMessage;
       try {
-        message = JSON.parse(event.data) as ServerMessage;
+        const raw = JSON.parse(event.data);
+        if (raw && typeof raw.type === "string") {
+          raw.type = raw.type.toLowerCase();
+        }
+        message = raw as ServerMessage;
       } catch {
         console.warn("Ignoring malformed message", event.data);
         return;
@@ -56,13 +60,14 @@ export function useTandemSync(url: string): TandemSocket {
           setLines((prev) => replaceLine(prev, message.data));
           break;
 
-        // Handle structural synchronization from server
+        // Handles structural synchronization from the server cleanly
         case "line_added":
         case "line_removed":
           setLines(message.data);
           break;
 
         case "edit_rejected": {
+          // No more red lines! TS knows EditRejectedPayload applies here.
           const { lineIndex, authoritativeLine, reason } = message.data;
           console.warn(reason);
           setLines((prev) => replaceLine(prev, authoritativeLine));
@@ -89,7 +94,7 @@ export function useTandemSync(url: string): TandemSocket {
     const target = linesRef.current.find((l) => l.index === index);
     if (!target || !socket || socket.readyState !== WebSocket.OPEN) return;
 
-    // optimistic local update
+    // optimistic local update for edits
     setLines((prev) => replaceLine(prev, { ...target, content: newContent }));
 
     const message: ClientMessage = {
@@ -99,13 +104,13 @@ export function useTandemSync(url: string): TandemSocket {
     socket.send(JSON.stringify(message));
   }, []);
 
-  const addLine = useCallback((afterIndex: number) => {
+  const addLine = useCallback((afterIndex: number, id?: string) => {
     const socket = socketRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
     const message: ClientMessage = {
       type: "add_line",
-      data: { afterIndex },
+      data: { afterIndex, id },
     };
     socket.send(JSON.stringify(message));
   }, []);
