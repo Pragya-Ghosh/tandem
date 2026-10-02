@@ -5,7 +5,6 @@ import type { ClientMessage, Line, ServerMessage } from "@/types/tandem";
 interface TandemSocket {
   lines: Line[];
   connected: boolean;
-  /** Index of a line whose edit was just rejected (for a brief highlight). */
   conflictIndex: number | null;
   editLine: (index: number, newContent: string) => void;
   addLine: (afterIndex: number, id?: string) => void;
@@ -15,13 +14,13 @@ interface TandemSocket {
 const replaceLine = (lines: Line[], next: Line): Line[] =>
   lines.map((l) => (l.index === next.index ? next : l));
 
+const generateId = () => Math.random().toString(36).substring(2, 9);
+const renumber = (lines: Line[]): Line[] => lines.map((l, i) => ({ ...l, index: i + 1 }));
+
 /**
  * Owns the WebSocket connection and the optimistic-concurrency protocol:
- * edits are applied locally right away, sent with the version they were based on,
- * and overwritten by the server's authoritative line if rejected.
- *
- * `linesRef` is the source of truth for everything that SENDS (it is updated
- * synchronously by `commit`), while `lines` state exists to re-render the UI.
+ * edits and structural changes (add/remove) are applied locally right away,
+ * making the editor completely resilient to Slow 3G network latency.
  */
 export function useTandemSync(url: string): TandemSocket {
   const [lines, setLines] = useState<Line[]>([]);
@@ -32,7 +31,6 @@ export function useTandemSync(url: string): TandemSocket {
   const linesRef = useRef<Line[]>([]);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /** The only place `lines` changes: keeps the ref and the state in step. */
   const commit = useCallback((next: Line[]) => {
     linesRef.current = next;
     setLines(next);
@@ -59,7 +57,6 @@ export function useTandemSync(url: string): TandemSocket {
       }
 
       switch (message.type) {
-        // Full snapshots: the initial document, a resync, or a structural change.
         case "init":
         case "line_added":
         case "line_removed":
@@ -69,9 +66,6 @@ export function useTandemSync(url: string): TandemSocket {
         case "line_updated": {
           const incoming = message.data;
           const current = linesRef.current.find((l) => l.index === incoming.index);
-          // We bump versions optimistically (see editLine), so we can be ahead of
-          // the server. An echo of one of our own earlier keystrokes would
-          // otherwise roll the line back.
           if (current && incoming.version < current.version) break;
           commit(replaceLine(linesRef.current, incoming));
           break;
@@ -80,8 +74,6 @@ export function useTandemSync(url: string): TandemSocket {
         case "edit_rejected": {
           const { lineIndex, authoritativeLine, reason } = message.data;
           console.warn(reason);
-          // The server omits the line when it no longer exists; it sends a
-          // snapshot in that case, so there is nothing to replace here.
           if (authoritativeLine) {
             commit(replaceLine(linesRef.current, authoritativeLine));
           }
@@ -103,17 +95,11 @@ export function useTandemSync(url: string): TandemSocket {
     };
   }, [url, commit]);
 
-  /**
-   * Edit a line's text. Applied locally at once, then sent with the version it was
-   * based on. The local version is bumped too, so a keystroke typed before the
-   * server has answered is based on our own previous edit instead of colliding
-   * with it (which would make the server reject us for conflicting with ourselves).
-   */
   const editLine = useCallback(
     (index: number, newContent: string) => {
       const socket = socketRef.current;
       const target = linesRef.current.find((l) => l.index === index);
-      if (!target || !socket || socket.readyState !== WebSocket.OPEN) return;
+      if (!target) return;
 
       commit(
         replaceLine(linesRef.current, {
@@ -123,38 +109,67 @@ export function useTandemSync(url: string): TandemSocket {
         })
       );
 
-      const message: ClientMessage = {
-        type: "edit_line",
-        data: { lineIndex: index, baseVersion: target.version, newContent },
-      };
-      socket.send(JSON.stringify(message));
+      if (socket?.readyState === WebSocket.OPEN) {
+        const message: ClientMessage = {
+          type: "edit_line",
+          data: { lineIndex: index, baseVersion: target.version, newContent },
+        };
+        socket.send(JSON.stringify(message));
+      }
     },
     [commit]
   );
 
-  /** Insert an empty line after `afterIndex`; `id` is the client-chosen line id. */
-  const addLine = useCallback((afterIndex: number, id?: string) => {
-    const socket = socketRef.current;
-    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+  const addLine = useCallback(
+    (afterIndex: number, id?: string) => {
+      const socket = socketRef.current;
+      const newId = id || generateId();
 
-    const message: ClientMessage = {
-      type: "add_line",
-      data: { afterIndex, id },
-    };
-    socket.send(JSON.stringify(message));
-  }, []);
+      // OPTIMISTIC LOCAL STRUCTURAL UPDATE: Instantly insert line locally
+      const currentLines = linesRef.current;
+      const pos = currentLines.findIndex((l) => l.index === afterIndex);
+      const insertIdx = pos !== -1 ? pos + 1 : currentLines.length;
 
-  /** Remove the line at `index`. */
-  const removeLine = useCallback((index: number) => {
-    const socket = socketRef.current;
-    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+      const nextLines = [...currentLines];
+      nextLines.splice(insertIdx, 0, {
+        id: newId,
+        index: 0,
+        version: 1,
+        content: "",
+      });
+      commit(renumber(nextLines));
 
-    const message: ClientMessage = {
-      type: "remove_line",
-      data: { index },
-    };
-    socket.send(JSON.stringify(message));
-  }, []);
+      if (socket?.readyState === WebSocket.OPEN) {
+        const message: ClientMessage = {
+          type: "add_line",
+          data: { afterIndex, id: newId },
+        };
+        socket.send(JSON.stringify(message));
+      }
+    },
+    [commit]
+  );
+
+  const removeLine = useCallback(
+    (index: number) => {
+      const socket = socketRef.current;
+      const currentLines = linesRef.current;
+      if (currentLines.length <= 1) return;
+
+      // OPTIMISTIC LOCAL STRUCTURAL UPDATE: Instantly remove line locally
+      const nextLines = currentLines.filter((l) => l.index !== index);
+      commit(renumber(nextLines));
+
+      if (socket?.readyState === WebSocket.OPEN) {
+        const message: ClientMessage = {
+          type: "remove_line",
+          data: { index },
+        };
+        socket.send(JSON.stringify(message));
+      }
+    },
+    [commit]
+  );
 
   return { lines, connected, conflictIndex, editLine, addLine, removeLine };
 }

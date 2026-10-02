@@ -1,0 +1,2299 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+client/
+  public/
+    file.svg
+    globe.svg
+    next.svg
+    vercel.svg
+    window.svg
+  src/
+    app/
+      favicon.ico
+      globals.css
+      layout.tsx
+      page.tsx
+    components/
+      editor/
+        ConnectionStatus.tsx
+        DocumentPanel.tsx
+        EditorHeader.tsx
+        KeyHints.tsx
+        LineRow.tsx
+        OverviewPanel.tsx
+        TandemEditor.tsx
+      ui/
+        Box.tsx
+        Field.tsx
+        index.ts
+        Key.tsx
+    hooks/
+      useHotkeys.ts
+      useTandemSync.ts
+    lib/
+      config.ts
+      indent.ts
+    types/
+      tandem.ts
+  .gitignore
+  eslint.config.mjs
+  next.config.ts
+  package.json
+  postcss.config.mjs
+  README.md
+  tsconfig.json
+server/
+  src/
+    constants/
+      events.js
+    services/
+      documentStore.js
+    ws/
+      socketHandler.js
+    app.js
+  index.js
+  package.json
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="client/public/file.svg">
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
+</file>
+
+<file path="client/public/globe.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+</file>
+
+<file path="client/public/next.svg">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
+</file>
+
+<file path="client/public/vercel.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+</file>
+
+<file path="client/public/window.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+</file>
+
+<file path="client/src/app/layout.tsx">
+import type { Metadata } from "next";
+import { JetBrains_Mono, Silkscreen } from "next/font/google";
+import "./globals.css";
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+});
+
+const silkscreen = Silkscreen({
+  weight: "700",
+  subsets: ["latin"],
+  variable: "--font-silkscreen",
+});
+
+export const metadata: Metadata = {
+  title: "Tandem",
+  description: "Collaborative code editor powered by OCC",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      className={`${jetbrainsMono.variable} ${silkscreen.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">{children}</body>
+    </html>
+  );
+}
+</file>
+
+<file path="client/src/app/page.tsx">
+import TandemEditor from "@/components/editor/TandemEditor";
+
+export default function Page() {
+  return <TandemEditor />;
+}
+</file>
+
+<file path="client/src/components/editor/ConnectionStatus.tsx">
+interface ConnectionStatusProps {
+  connected: boolean;
+  labels?: { on: string; off: string };
+}
+
+export function ConnectionStatus({
+  connected,
+  labels = { on: "connected", off: "disconnected" },
+}: ConnectionStatusProps) {
+  return (
+    <span className={connected ? "fg-ok" : "fg-err"}>
+      {connected ? labels.on : labels.off}
+    </span>
+  );
+}
+</file>
+
+<file path="client/src/components/editor/EditorHeader.tsx">
+import { APP_VERSION, DOCUMENT_PATH, TABS } from "@/lib/config";
+import type { Tab } from "@/types/tandem";
+import { Box } from "@/components/ui";
+
+interface EditorHeaderProps {
+  activeTab: Tab;
+  onSelectTab: (tab: Tab) => void;
+}
+
+export function EditorHeader({ activeTab, onSelectTab }: EditorHeaderProps) {
+  return (
+    <Box title={APP_VERSION} className="flex items-center justify-between gap-4 px-3 py-2">
+      <nav role="tablist" className="flex items-center">
+        {TABS.map((tab, i) => (
+          <span key={tab.id} className="flex items-center">
+            {i > 0 && <span className="fg-dim mx-3">|</span>}
+            <button
+              role="tab"
+              className="tab"
+              aria-selected={activeTab === tab.id}
+              onClick={() => onSelectTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          </span>
+        ))}
+      </nav>
+      <span className="fg hidden italic sm:block">{DOCUMENT_PATH}</span>
+    </Box>
+  );
+}
+</file>
+
+<file path="client/src/components/ui/Box.tsx">
+import type { ReactNode } from "react";
+
+interface BoxProps {
+  /** Rendered as |Title| sitting on the top border. */
+  title?: string;
+  className?: string;
+  children: ReactNode;
+}
+
+/** A 1px bordered panel with an optional title drawn on its top border. */
+export function Box({ title, className = "", children }: BoxProps) {
+  return (
+    <section className={`relative border border-fg ${className}`}>
+      {title && (
+        <span className="absolute -top-[0.7em] left-1/2 -translate-x-1/2 bg-page px-1 leading-none whitespace-nowrap">
+          <span className="fg-dim">|</span>
+          <span className="fg font-bold">{title}</span>
+          <span className="fg-dim">|</span>
+        </span>
+      )}
+      {children}
+    </section>
+  );
+}
+</file>
+
+<file path="client/src/components/ui/index.ts">
+export { Box } from "./Box";
+export { Field } from "./Field";
+export { Key } from "./Key";
+</file>
+
+<file path="client/src/components/ui/Key.tsx">
+interface KeyProps {
+  keyName: string;
+  label: string;
+}
+
+/** A `[Key→ Label]` hint. */
+export function Key({ keyName, label }: KeyProps) {
+  return (
+    <span className="whitespace-nowrap">
+      <span className="fg-dim">[</span>
+      <span className="fg-gold">{keyName}</span>
+      <span className="fg-dim">→ </span>
+      <span className="fg">{label}</span>
+      <span className="fg-dim">]</span>
+    </span>
+  );
+}
+</file>
+
+<file path="client/src/lib/config.ts">
+import type { Tab } from "@/types/tandem";
+
+export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:5000";
+
+export const APP_VERSION = "tandem-0.1.0";
+export const DOCUMENT_NAME = "main.js";
+export const DOCUMENT_PATH = "/workspace/cse31/main.js";
+
+/** How long a rejected line stays highlighted. */
+export const CONFLICT_FLASH_MS = 1000;
+
+export const TABS: ReadonlyArray<{ id: Tab; label: string }> = [
+  { id: "general", label: "General" },
+  { id: "editor", label: "Editor" },
+];
+</file>
+
+<file path="client/src/lib/indent.ts">
+/** One indent level used by the editor (Tab / Shift+Tab). */
+export const INDENT = "  ";
+
+/**
+ * How many leading characters Shift+Tab should remove from `content`:
+ * a full indent if present, otherwise a single space, otherwise nothing.
+ */
+export function leadingOutdentSize(content: string): number {
+  if (content.startsWith(INDENT)) return INDENT.length;
+  if (content.startsWith(" ")) return 1;
+  return 0;
+}
+
+/** Indents (default) or outdents one line of text. */
+export function adjustIndent(content: string, outdent: boolean): string {
+  return outdent ? content.slice(leadingOutdentSize(content)) : INDENT + content;
+}
+</file>
+
+<file path="client/.gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+</file>
+
+<file path="client/eslint.config.mjs">
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;
+</file>
+
+<file path="client/next.config.ts">
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+};
+
+export default nextConfig;
+</file>
+
+<file path="client/package.json">
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "16.3.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.7",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+</file>
+
+<file path="client/postcss.config.mjs">
+const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+</file>
+
+<file path="client/README.md">
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+</file>
+
+<file path="server/src/app.js">
+const express = require('express');
+const http = require('http');
+const cors = require('cors');
+
+function createApp() {
+  const app = express();
+  app.use(cors());
+
+  // Healthcheck route
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  const server = http.createServer(app);
+  return { app, server };
+}
+
+module.exports = createApp;
+</file>
+
+<file path="server/index.js">
+const createApp = require('./src/app');
+const DocumentStore = require('./src/services/documentStore');
+const setupWebSocketServer = require('./src/ws/socketHandler');
+
+const PORT = process.env.PORT || 5000;
+
+// Initialize dependencies
+const { server } = createApp();
+const documentStore = new DocumentStore();
+
+// Attach WS transport
+setupWebSocketServer(server, documentStore);
+
+server.listen(PORT, () => {
+  console.log(`> Tandem Engine running on port ${PORT}`);
+});
+</file>
+
+<file path="server/package.json">
+{
+  "name": "tandem",
+  "version": "1.0.0",
+  "description": "```   __ __                  _                   |_   _|                | |                    | |  __ _  _ __    __| |  ___  _ __ ___      | | / _` || '_ \\  / _` | / _ \\| '_ ` _ \\     | || (_| || | | || (_| ||  __/| | | | | |    \\_/ \\__,_||_| |_| \\__,_| \\___||_| |_| |_|",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pragya-Ghosh/tandem.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Pragya-Ghosh/tandem/issues"
+  },
+  "homepage": "https://github.com/Pragya-Ghosh/tandem#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "ws": "^8.22.0"
+  }
+}
+</file>
+
+<file path="README.md">
+# Tandem: Collaborative Code Review
+
+```
+  __ __                  _                 
+ |_   _|                | |                
+   | |  __ _  _ __    __| |  ___  _ __ ___  
+   | | / _` || '_ \  / _` | / _ \| '_ ` _ \ 
+   | || (_| || | | || (_| ||  __/| | | | | |
+   \_/ \__,_||_| |_| \__,_| \___||_| |_| |_|
+                                               
+```
+
+**Pragya Ghosh**\
+**24051500**\
+**CSE-31**
+
+*Option 4: Collaborative Network File System*\
+My project is specifically meant for code files.
+
+## Introduction
+Standard version control workflows are inherently asynchronous. In fast-paced pair programming or aggressive incident-response code reviews, multiple engineers frequently need to refactor different sections of the same file simultaneously. 
+
+Tandem is a real-time, low-latency collaborative text engine designed specifically for concurrent code editing. 
+
+
+## Tech Stack & Architecture
+Tandem utilizes a modern web-based Client-Server architecture to ensure sub-millisecond propagation of edits and permanent data durability.
+
+* **Frontend:** Next.js and React to manage the editor's UI state and render the text array.
+* **Backend:** A Node.js server that manages WebSocket connections and keeps the document synchronized across all users.
+* **Database Layer:** A persistent relational database (PostgreSQL via Supabase) to store the authoritative code state and safely commit concurrent edits.
+* **Transport Layer:** WebSockets (via Socket.io) for persistent, bi-directional, full-duplex communication.
+
+## Project Scope
+
+* **Persistent Database:** The code is permanently saved in a database. When users connect, they load the latest saved version, and all new edits are continuously saved back so nothing is lost.
+* **Central WebSocket Server:** A Node.js server that keeps an open, two-way connection with multiple users at the exact same time.
+* **Real-Time Live Editing:** As soon as one person types, their keystrokes instantly appear on everyone else's screen.
+* **Line-Level Concurrency Control (OCC):** A system that tracks edits line-by-line. If two people try to rewrite the exact same line at the exact same millisecond, the server safely rejects the slower edit to prevent the code from getting corrupted.
+* **Offline Recovery:** If a user's Wi-Fi drops and they reconnect, the system automatically pulls the latest updated code from the server to get them perfectly back in sync.
+
+## Concurrency Strategy: Line-Level Optimistic Concurrency Control (OCC)
+Tandem closely mirrors the conflict-resolution philosophy of Git. **Optimistic Concurrency Control (OCC)** operates on the assumption that true concurrent conflicts are rare. 
+
+Instead of placing a restrictive "lock" on a file or line the moment someone starts typing, OCC allows all users to edit freely and simultaneously. The system only checks for conflicts at the exact millisecond an edit reaches the server. Every line of code is assigned a specific version number. When a user submits an edit, they include the version they were looking at. 
+
+If the server detects that the line's version has changed since the user began typing (meaning someone else beat them to it), the server explicitly rejects the "stale" edit. This guarantees that code is never silently overwritten, protecting the integrity of the file without sacrificing real-time speed.
+
+* **Versioned State:** The document is not treated as a single massive string, but as an array of discrete lines. The server maintains a strict, independent version integer for every single line.
+* **Rejection Mechanism:** When a client submits an edit to a line, the payload must include the `base_version` they are editing from. If the server's current version for that line is higher, it means another client has already modified it. The server explicitly rejects the stale edit to prevent the "Lost Update" anomaly.
+* **Client-Side Resolution:** Upon rejection, the server pushes the latest authoritative state to the lagging client. The client's UI flags the collision, forcing the developer to explicitly review the updated logic before submitting a new edit.
+
+## Disconnect Handling
+The system is designed to be robust against sudden network failures, ensuring the editor remains stable if a developer drops offline.
+
+* **Connection State:** If a client drops due to packet loss or Wi-Fi failure, the UI locks the editor to prevent the user from making un-syncable offline edits.
+* **Reconnection Sync:** Upon reconnecting, the client fires a `sync_state` request. The server responds with the complete, latest array of versioned lines, immediately overwriting any stale data on the client side and ensuring they resume with a perfectly consistent view of the file.
+
+
+## AI Usage Disclosure
+AI has been used to help figure out the basic architecture of this project. Moving forward, AI will also be used to assist with building and styling the web-based User Interface (Next.js and React components). The core backend logic, state management, and concurrency engine will be developed independently.
+
+## System Flow Diagrams
+
+The following diagrams illustrate how the WebSocket server handles real-time edits and strictly resolves concurrent conflicts using Line-Level OCC.
+
+### Scenario A: Successful Edit 
+Client A edits a line, the version matches the server's state, and the edit is successfully broadcasted to all other connected clients.
+```
+[Client A]                               [Node.js Server]                              [Client B]
+    |                               (Holds Line 5, v10: "let x = 1;")                      |
+    |                                            |                                         |
+    |--- 1. Edit Line 5 to "let x = 2;" -------->|                                         |
+    |    (Payload: line:5, base_v:10)            |                                         |
+    |                                            |                                         |
+    |                                            |--- 2. Version matches (10 == 10)        |
+    |                                            |--- 3. Updates Line 5 to v11             |
+    |                                            |                                         |
+    |<-- 4. ACK (Line 5 is now v11) -------------|--- 5. Broadcast (Line 5 is now v11) --->|
+    |                                            |                                         |
+    |    (Client A continues typing)             |    (Client B's UI instantly updates)    |
+```
+
+### Scenario B: Concurrent Conflict (OCC Rejection)
+Client A and Client B edit the exact same line at the exact same time. Client B's packet arrives first, making Client A's packet stale. The server protects the code logic by rejecting Client A's stale edit.
+
+```
+[Client A]                               [Node.js Server]                         [Client B]
+    |                               (Holds Line 5, v10: "let x = 1;")                      |
+    |                                            |                                         |
+    |                                            |<-- 1. Edit Line 5 to "let x = 99;" -----|
+    |                                            |    (Payload: line:5, base_v:10)         |
+    |                                            |                                         |
+    |--- 2. Edit Line 5 to "let x = 2;" -------->|--- 3. Server processes B's edit first   |
+    |    (Payload: line:5, base_v:10)            |    (Updates Line 5 to v11)              |
+    |                                            |                                         |
+    |                                            |--- 4. Server processes A's edit next    |
+    |                                            |--- 5. Version Mismatch! (10 < 11)       |
+    |                                            |--- 6. REJECT A's edit                   |
+    |                                            |                                         |
+    |<-- 7. Reject & push latest (Line 5, v11) --|                                         |
+    |                                            |                                         |
+    |    (Client A's UI flashes red, overwrites  |                                         |
+    |     stale input with Client B's logic)     |                                         |
+```
+</file>
+
+<file path="client/src/components/ui/Field.tsx">
+import type { ReactNode } from "react";
+
+interface FieldProps {
+  name: string;
+  children: ReactNode;
+}
+
+/** A `Name: value` row with a teal label. */
+export function Field({ name, children }: FieldProps) {
+  return (
+    <div style={{ padding: "6px 12px" }}>
+      <span className="fg-teal">{name}:</span> <span className="fg">{children}</span>
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/hooks/useHotkeys.ts">
+import { useEffect, useRef } from "react";
+
+type Bindings = Partial<Record<string, () => void>>;
+
+/**
+- Global key bindings for the terminal UI.
+- Ignored while typing in an <input> or <textarea>, except Escape which blurs it.
+ */
+export function useHotkeys(bindings: Bindings): void {
+  const ref = useRef(bindings);
+  ref.current = bindings;
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+
+      if (target?.tagName === "INPUT" || target?.tagName === "TEXTAREA") {
+        if (e.key === "Escape") target.blur();
+        return;
+      }
+
+      const handler = ref.current[e.key];
+      if (handler) {
+        e.preventDefault();
+        handler();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+}
+</file>
+
+<file path="client/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": ["node_modules"]
+}
+</file>
+
+<file path="server/src/constants/events.js">
+module.exports = {
+  WS_EVENTS: {
+    INIT: 'init',
+    EDIT_LINE: 'edit_line',
+    LINE_UPDATED: 'line_updated',
+    EDIT_REJECTED: 'edit_rejected',
+    ADD_LINE: 'add_line',
+    REMOVE_LINE: 'remove_line',
+    LINE_ADDED: 'line_added',
+    LINE_REMOVED: 'line_removed',
+  },
+};
+</file>
+
+<file path="client/src/app/globals.css">
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Silkscreen:wght@700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-dark: #09090b;      /* Very dark background for terminal contrast */
+  --tui-white: #e4e4e7;    /* Primary borders and text */
+  --tui-blue: #38bdf8;     /* Cyan/Blue for accents and terminal prompts */
+  --tui-orange: #fb923c;   /* Orange for ASCII art and warnings */
+  --tui-yellow: #facc15;   /* Yellow for titles and highlights */
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--tui-white);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Custom scrollbar to maintain the retro terminal feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+  border-left: 1px solid var(--tui-white);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tui-white);
+}
+
+/* ---- Tandem Retro TUI Component Scope & Tokens ---- */
+.tandem-root {
+  --bg: #161616;
+  --fg: #e6e6e6;
+  --dim: #8a8a8a;
+  --muted: #6b6b6b;
+  --teal: #5cb8a5;
+  --teal-hi: #8fd6c4;
+  --gold: #e5b567;
+  --ok: #8fb573;
+  --err: #e06c4f;
+  --surface: #1f1f1f;
+  --conflict-bg: #2a1513;
+
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "JetBrains Mono", "Ubuntu Mono", "Fira Code", ui-monospace, monospace;
+}
+
+/* ---- Semantic Colour Utilities & Font Face ---- */
+.tandem-root .fg { color: var(--fg); }
+.tandem-root .fg-dim { color: var(--dim); }
+.tandem-root .fg-muted { color: var(--muted); }
+.tandem-root .fg-teal { color: var(--teal); }
+.tandem-root .fg-gold { color: var(--gold); }
+.tandem-root .fg-ok { color: var(--ok); }
+.tandem-root .fg-err { color: var(--err); }
+.tandem-root .bg-page { background: var(--bg); }
+.tandem-root .border-fg { border-color: var(--fg); }
+.tandem-root .border-dim { border-color: var(--dim); }
+
+.tandem-root .pixel {
+  font-family: "Silkscreen", "JetBrains Mono", monospace !important;
+  font-weight: 700 !important;
+}
+
+/* ---- Tab Button ---- */
+.tandem-root .tab {
+  cursor: pointer;
+  /* Unselected state*/
+  color: var(--dim);
+  background: var(--surface);
+  border: 1px solid var(--dim);
+  padding: 0.5rem 1.25rem; 
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+}
+
+.tandem-root .tab:hover { 
+  color: var(--fg); 
+  border-color: var(--teal-hi);
+}
+
+.tandem-root .tab:focus-visible { 
+  border-color: var(--gold); 
+}
+
+.tandem-root .tab[aria-selected="true"] {
+  /* Active state */
+  background: var(--teal);
+  color: var(--bg);
+  border-color: var(--teal);
+  font-weight: 700;
+}
+
+/* ---- Editable Line ---- */
+.tandem-root .line-input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  outline: none;
+  color: var(--fg);
+  padding: 0.125rem 0.5rem;
+  transition: background-color 0.2s, border-color 0.2s;
+  user-select: text;
+}
+.tandem-root .line-input:hover,
+.tandem-root .line-input:focus { background: var(--surface); }
+.tandem-root .line-input:focus { border-color: var(--teal); }
+
+.tandem-root .line-input[data-conflict="true"] {
+  background: var(--conflict-bg);
+  border-color: var(--err);
+  color: var(--err);
+}
+</file>
+
+<file path="client/src/types/tandem.ts">
+/** Domain types + the WebSocket wire protocol. */
+
+export interface Line {
+  id: string; 
+  index: number;
+  version: number;
+  content: string;
+}
+
+export type Tab = "general" | "editor";
+
+/* ---------- server -> client ---------- */
+
+export interface EditRejectedPayload {
+  lineIndex: number;
+  authoritativeLine: Line;
+  reason: string;
+}
+
+export type ServerMessage =
+  | { type: "init" | "INIT"; data: Line[] }
+  | { type: "line_updated" | "LINE_UPDATED"; data: Line }
+  | { type: "line_added" | "LINE_ADDED"; data: Line[] }
+  | { type: "line_removed" | "LINE_REMOVED"; data: Line[] }
+  | { type: "edit_rejected" | "EDIT_REJECTED"; data: EditRejectedPayload };
+
+/* ---------- client -> server ---------- */
+
+export interface EditLinePayload {
+  lineIndex: number;
+  baseVersion: number;
+  newContent: string;
+}
+
+export interface AddLinePayload {
+  afterIndex: number;
+  id?: string;
+}
+
+export interface RemoveLinePayload {
+  index: number;
+}
+
+export type ClientMessage =
+  | { type: "edit_line"; data: EditLinePayload }
+  | { type: "add_line"; data: AddLinePayload }
+  | { type: "remove_line"; data: RemoveLinePayload };
+</file>
+
+<file path="client/src/hooks/useTandemSync.ts">
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CONFLICT_FLASH_MS } from "@/lib/config";
+import type { ClientMessage, Line, ServerMessage } from "@/types/tandem";
+
+interface TandemSocket {
+  lines: Line[];
+  connected: boolean;
+  conflictIndex: number | null;
+  editLine: (index: number, newContent: string) => void;
+  addLine: (afterIndex: number, id?: string) => void;
+  removeLine: (index: number) => void;
+}
+
+const replaceLine = (lines: Line[], next: Line): Line[] =>
+  lines.map((l) => (l.index === next.index ? next : l));
+
+const generateId = () => Math.random().toString(36).substring(2, 9);
+const renumber = (lines: Line[]): Line[] => lines.map((l, i) => ({ ...l, index: i + 1 }));
+
+/**
+ * Owns the WebSocket connection and the optimistic-concurrency protocol:
+ * edits and structural changes (add/remove) are applied locally right away,
+ * making the editor completely resilient to Slow 3G network latency.
+ */
+export function useTandemSync(url: string): TandemSocket {
+  const [lines, setLines] = useState<Line[]>([]);
+  const [connected, setConnected] = useState(false);
+  const [conflictIndex, setConflictIndex] = useState<number | null>(null);
+
+  const socketRef = useRef<WebSocket | null>(null);
+  const linesRef = useRef<Line[]>([]);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const commit = useCallback((next: Line[]) => {
+    linesRef.current = next;
+    setLines(next);
+  }, []);
+
+  useEffect(() => {
+    const socket = new WebSocket(url);
+    socketRef.current = socket;
+
+    socket.onopen = () => setConnected(true);
+    socket.onclose = () => setConnected(false);
+
+    socket.onmessage = (event) => {
+      let message: ServerMessage;
+      try {
+        const raw = JSON.parse(event.data);
+        if (raw && typeof raw.type === "string") {
+          raw.type = raw.type.toLowerCase();
+        }
+        message = raw as ServerMessage;
+      } catch {
+        console.warn("Ignoring malformed message", event.data);
+        return;
+      }
+
+      switch (message.type) {
+        case "init":
+        case "line_added":
+        case "line_removed":
+          commit(message.data);
+          break;
+
+        case "line_updated": {
+          const incoming = message.data;
+          const current = linesRef.current.find((l) => l.index === incoming.index);
+          if (current && incoming.version < current.version) break;
+          commit(replaceLine(linesRef.current, incoming));
+          break;
+        }
+
+        case "edit_rejected": {
+          const { lineIndex, authoritativeLine, reason } = message.data;
+          console.warn(reason);
+          if (authoritativeLine) {
+            commit(replaceLine(linesRef.current, authoritativeLine));
+          }
+
+          setConflictIndex(lineIndex);
+          if (flashTimer.current) clearTimeout(flashTimer.current);
+          flashTimer.current = setTimeout(
+            () => setConflictIndex(null),
+            CONFLICT_FLASH_MS
+          );
+          break;
+        }
+      }
+    };
+
+    return () => {
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+      socket.close();
+    };
+  }, [url, commit]);
+
+  const editLine = useCallback(
+    (index: number, newContent: string) => {
+      const socket = socketRef.current;
+      const target = linesRef.current.find((l) => l.index === index);
+      if (!target) return;
+
+      commit(
+        replaceLine(linesRef.current, {
+          ...target,
+          content: newContent,
+          version: target.version + 1,
+        })
+      );
+
+      if (socket?.readyState === WebSocket.OPEN) {
+        const message: ClientMessage = {
+          type: "edit_line",
+          data: { lineIndex: index, baseVersion: target.version, newContent },
+        };
+        socket.send(JSON.stringify(message));
+      }
+    },
+    [commit]
+  );
+
+  const addLine = useCallback(
+    (afterIndex: number, id?: string) => {
+      const socket = socketRef.current;
+      const newId = id || generateId();
+
+      // OPTIMISTIC LOCAL STRUCTURAL UPDATE: Instantly insert line locally
+      const currentLines = linesRef.current;
+      const pos = currentLines.findIndex((l) => l.index === afterIndex);
+      const insertIdx = pos !== -1 ? pos + 1 : currentLines.length;
+
+      const nextLines = [...currentLines];
+      nextLines.splice(insertIdx, 0, {
+        id: newId,
+        index: 0,
+        version: 1,
+        content: "",
+      });
+      commit(renumber(nextLines));
+
+      if (socket?.readyState === WebSocket.OPEN) {
+        const message: ClientMessage = {
+          type: "add_line",
+          data: { afterIndex, id: newId },
+        };
+        socket.send(JSON.stringify(message));
+      }
+    },
+    [commit]
+  );
+
+  const removeLine = useCallback(
+    (index: number) => {
+      const socket = socketRef.current;
+      const currentLines = linesRef.current;
+      if (currentLines.length <= 1) return;
+
+      // OPTIMISTIC LOCAL STRUCTURAL UPDATE: Instantly remove line locally
+      const nextLines = currentLines.filter((l) => l.index !== index);
+      commit(renumber(nextLines));
+
+      if (socket?.readyState === WebSocket.OPEN) {
+        const message: ClientMessage = {
+          type: "remove_line",
+          data: { index },
+        };
+        socket.send(JSON.stringify(message));
+      }
+    },
+    [commit]
+  );
+
+  return { lines, connected, conflictIndex, editLine, addLine, removeLine };
+}
+</file>
+
+<file path="server/src/services/documentStore.js">
+const generateId = () => Math.random().toString(36).substring(2, 9);
+
+/** Limits so one client can't bloat the document or the broadcast payloads. */
+const MAX_LINES = 10000;
+const MAX_LINE_LENGTH = 10000;
+const MAX_ID_LENGTH = 64;
+
+/**
+ * In-memory document: an ordered list of lines `{ id, index, version, content }`.
+ *  - `index` is the 1-based position and is renumbered after every structural change.
+ *  - `id` is stable for the life of a line, so clients can keep track of it.
+ *  - `version` goes up by one on every accepted edit (optimistic concurrency).
+ */
+class DocumentStore {
+  constructor(initialLines = []) {
+    this.lines =
+      initialLines.length > 0
+        ? initialLines.map((l, i) => ({ ...l, id: l.id ?? generateId(), index: i + 1 }))
+        : [
+            { id: generateId(), index: 1, version: 1, content: "function initialize() {" },
+            { id: generateId(), index: 2, version: 1, content: "  console.log('Tandem is live!');" },
+            { id: generateId(), index: 3, version: 1, content: "}" },
+          ];
+  }
+
+  /** The current full document. */
+  getSnapshot() {
+    return this.lines;
+  }
+
+  /**
+   * Applies an edit if it was based on the line's current version.
+   *
+   * Returns one of:
+   *   { success: true,  line }                     edit applied
+   *   { success: false, line, reason }             version conflict (line = current server copy)
+   *   { success: false, reason, missing: true }    the line doesn't exist (no `line`)
+   *   { success: false, reason }                   invalid input
+   */
+  applyEdit(lineIndex, baseVersion, newContent) {
+    if (typeof newContent !== "string" || newContent.length > MAX_LINE_LENGTH) {
+      return { success: false, reason: "Invalid or oversized line content." };
+    }
+
+    const line = this.lines.find((l) => l.index === lineIndex);
+
+    if (!line) {
+      return { success: false, missing: true, reason: `Line ${lineIndex} does not exist.` };
+    }
+
+    if (baseVersion !== line.version) {
+      return {
+        success: false,
+        line: { ...line },
+        reason: "OCC Conflict: Version mismatch. Someone else edited this line first.",
+      };
+    }
+
+    line.content = newContent;
+    line.version += 1;
+
+    return { success: true, line: { ...line } };
+  }
+
+  /**
+   * Inserts a blank line after `afterIndex` (Enter key).
+   * `clientId` lets the client name the new line so it keeps its identity while the
+   * server's answer is in flight. It is ignored if it is invalid or already in use.
+   */
+  addLine(afterIndex, clientId) {
+    if (this.lines.length >= MAX_LINES) {
+      return { success: false, reason: "Document is full." };
+    }
+
+    const pos = this.lines.findIndex((l) => l.index === afterIndex);
+    const insertIdx = pos !== -1 ? pos + 1 : this.lines.length;
+
+    const idIsUsable =
+      typeof clientId === "string" &&
+      clientId.length > 0 &&
+      clientId.length <= MAX_ID_LENGTH &&
+      !this.lines.some((l) => l.id === clientId);
+
+    this.lines.splice(insertIdx, 0, {
+      id: idIsUsable ? clientId : generateId(),
+      index: 0, // fixed by the renumber below
+      version: 1,
+      content: "",
+    });
+
+    // Renumber to keep 1-based indexing; ids stay as they are.
+    this.lines = this.lines.map((l, i) => ({ ...l, index: i + 1 }));
+
+    return { success: true, snapshot: this.lines };
+  }
+
+  /** Removes the line at `index` (Backspace on an empty line, delete selection). */
+  removeLine(index) {
+    if (this.lines.length <= 1) {
+      return { success: false, reason: "Cannot delete the last remaining line." };
+    }
+
+    if (!this.lines.some((l) => l.index === index)) {
+      return { success: false, reason: `Line ${index} does not exist.` };
+    }
+
+    this.lines = this.lines
+      .filter((l) => l.index !== index)
+      .map((l, i) => ({ ...l, index: i + 1 }));
+
+    return { success: true, snapshot: this.lines };
+  }
+}
+
+module.exports = DocumentStore;
+</file>
+
+<file path="server/src/ws/socketHandler.js">
+const WebSocket = require('ws');
+const { WS_EVENTS } = require('../constants/events');
+
+function setupWebSocketServer(server, documentStore) {
+  const wss = new WebSocket.Server({ server });
+
+  wss.on('connection', (ws) => {
+    console.log('[+] Client connected');
+
+    // Send authoritative snapshot upon connection
+    sendSnapshot(ws, documentStore);
+
+    // Message router
+    ws.on('message', (rawMessage) => {
+      let message;
+      try {
+        message = JSON.parse(rawMessage);
+      } catch (err) {
+        console.error('[-] Invalid JSON received:', err.message);
+        return;
+      }
+
+      try {
+        handleMessage(ws, wss, message, documentStore);
+      } catch (err) {
+        // A bad payload must never take the server down or be mistaken for bad JSON.
+        console.error('[-] Failed to handle message:', err);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('[-] Client disconnected');
+    });
+  });
+
+  return wss;
+}
+
+function handleMessage(ws, wss, message, documentStore) {
+  const { type, data } = message || {};
+  if (!data || typeof data !== 'object') return;
+
+  switch (type) {
+    case WS_EVENTS.EDIT_LINE: {
+      const { lineIndex, baseVersion, newContent } = data;
+      const result = documentStore.applyEdit(lineIndex, baseVersion, newContent);
+
+      if (result.success) {
+        console.log(`[Edit Accepted] Line ${lineIndex} updated to v${result.line.version}`);
+        broadcast(wss, { type: WS_EVENTS.LINE_UPDATED, data: result.line });
+      } else if (result.line) {
+        // Version conflict: tell the sender what the line really looks like.
+        console.log(`[Edit Rejected] Stale write on Line ${lineIndex}`);
+        sendJson(ws, {
+          type: WS_EVENTS.EDIT_REJECTED,
+          data: { lineIndex, authoritativeLine: result.line, reason: result.reason },
+        });
+      } else {
+        // Missing line or invalid input: there's no line to send back, so resync.
+        console.log(`[Edit Ignored] ${result.reason}`);
+        sendSnapshot(ws, documentStore);
+      }
+      break;
+    }
+
+    // Structural addition of lines (Enter key)
+    case WS_EVENTS.ADD_LINE: {
+      const { afterIndex, id } = data;
+      const result = documentStore.addLine(afterIndex, id);
+
+      if (result.success) {
+        console.log(`[Line Added] After line ${afterIndex}`);
+        broadcast(wss, { type: WS_EVENTS.LINE_ADDED, data: result.snapshot });
+      } else {
+        console.log(`[Add Ignored] ${result.reason}`);
+        sendSnapshot(ws, documentStore);
+      }
+      break;
+    }
+
+    // Structural removal of lines (Backspace/Delete)
+    case WS_EVENTS.REMOVE_LINE: {
+      const { index } = data;
+      const result = documentStore.removeLine(index);
+
+      if (result.success) {
+        console.log(`[Line Removed] Line ${index}`);
+        broadcast(wss, { type: WS_EVENTS.LINE_REMOVED, data: result.snapshot });
+      } else {
+        // The client already removed the line on screen: put it back right away.
+        console.log(`[Remove Ignored] ${result.reason}`);
+        sendSnapshot(ws, documentStore);
+      }
+      break;
+    }
+  }
+}
+
+// Helpers
+function sendJson(ws, payload) {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(payload));
+  }
+}
+
+/** Sends the full document to one client (initial load and resyncs). */
+function sendSnapshot(ws, documentStore) {
+  sendJson(ws, { type: WS_EVENTS.INIT, data: documentStore.getSnapshot() });
+}
+
+function broadcast(wss, payload) {
+  wss.clients.forEach((client) => {
+    sendJson(client, payload);
+  });
+}
+
+module.exports = setupWebSocketServer;
+</file>
+
+<file path="client/src/components/editor/KeyHints.tsx">
+import type { Tab } from "@/types/tandem";
+import { ConnectionStatus } from "./ConnectionStatus";
+import { Key } from "@/components/ui";
+
+interface KeyHintsProps {
+  tab: Tab;
+  connected: boolean;
+}
+
+/* Keybinding hints drawn on the bottom border of the parent Box. */
+export function KeyHints({ tab, connected }: KeyHintsProps) {
+  return (
+    <div className="absolute right-4 -bottom-[0.7em] left-4 flex leading-none">
+      <span className="bg-page flex flex-wrap items-center gap-x-6 px-2 font-mono text-xs tracking-tight">
+        {tab === "general" && <Key keyName="F4" label="Open editor" />}
+        <Key keyName="F2" label="Next" />
+        {tab === "editor" && (
+          <>
+            <Key keyName="Esc" label="Leave line(s)" />
+            <Key keyName="Ctrl+A" label="Select all" />
+            <Key keyName="Shift+Click" label="Select lines" />
+            <Key keyName="Alt" label="View line versions" />
+          </>
+        )}
+        <span className="whitespace-nowrap ml-2">
+          <span className="fg-dim">[</span>
+          <ConnectionStatus connected={connected} labels={{ on: "Connected", off: "Offline" }} />
+          <span className="fg-dim">]</span>
+        </span>
+      </span>
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/components/editor/OverviewPanel.tsx">
+import { DOCUMENT_NAME, WS_URL } from "@/lib/config";
+import type { Line } from "@/types/tandem";
+import { ConnectionStatus } from "./ConnectionStatus";
+import { Box, Field } from "@/components/ui";
+
+const PREVIEW_ROWS = 7;
+
+interface OverviewPanelProps {
+  lines: Line[];
+  connected: boolean;
+}
+
+export function OverviewPanel({ lines, connected }: OverviewPanelProps) {
+  const totalEdits = lines.reduce((sum, l) => sum + l.version, 0);
+
+  return (
+    <div className="flex flex-col items-center gap-3 text-center py-2">
+      <h1 className="pixel text-5xl sm:text-7xl leading-none">
+        tandem.
+      </h1>
+
+      <p className="mt-2 text-base sm:text-lg">
+        Made for developers who{" "}
+        <span className="fg-gold italic">code in tandem.</span>
+      </p>
+      <div className="border-dim my-2 w-64 border-t sm:w-80" />
+      <p className="italic">Powered by Line-Level Optimistic Concurrency Control</p>
+      
+      <p className="fg-dim" style={{ marginBottom: "28px" }}>
+        [with <span className="fg-teal">♥</span> by <a href="https://github.com/Pragya-Ghosh/tandem" style={{color: "inherit"}}><span className="fg-teal">@Pragya-Ghosh</span>]</a>
+      </p>
+
+      <Box className="w-full max-w-sm px-3 py-2 text-left">
+        <Field name="File">{DOCUMENT_NAME}</Field>
+        <Field name="Lines">{lines.length}</Field>
+        <Field name="Total edits">{totalEdits}</Field>
+        <Field name="Server">{WS_URL}</Field>
+        <Field name="Status">
+          <ConnectionStatus connected={connected} />
+        </Field>
+      </Box>
+
+      <Box title="Line versions" className="mt-4 w-full max-w-md text-left">
+        <div style={{ paddingTop: "10px", paddingBottom: "10px", paddingLeft: "14px", paddingRight: "14px" }}>
+          {lines.length === 0 ? (
+            <p className="fg-dim">Waiting for the server…</p>
+          ) : (
+            <div className="grid grid-cols-[auto_1fr] gap-x-8">
+              <span className="font-bold">Line</span>
+              <span className="font-bold">Version</span>
+              {lines.slice(0, PREVIEW_ROWS).map((line, i) => (
+                <div key={line.index} className="contents">
+                  <span className={i === 0 ? "fg-ok" : ""}>{line.index}</span>
+                  <span className={i === 0 ? "fg-ok" : ""}>v{line.version}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Box>
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/components/editor/TandemEditor.tsx">
+"use client";
+
+import { useState } from "react";
+import { DocumentPanel } from "./DocumentPanel";
+import { OverviewPanel } from "./OverviewPanel";
+import { KeyHints } from "./KeyHints";
+import { EditorHeader } from "./EditorHeader";
+import { Box } from "@/components/ui";
+import { WS_URL } from "@/lib/config";
+import { useHotkeys } from "@/hooks/useHotkeys";
+import { useTandemSync } from "@/hooks/useTandemSync";
+import type { Tab } from "@/types/tandem";
+
+export default function TandemEditor() {
+  const [tab, setTab] = useState<Tab>("general");
+  
+  // Destructure addLine and removeLine from your hook
+  const { lines, connected, conflictIndex, editLine, addLine, removeLine } = useTandemSync(WS_URL);
+
+  useHotkeys({
+    F2: () => setTab((t) => (t === "general" ? "editor" : "general")),
+    F4: () => setTab("editor"),
+  });
+
+  return (
+    <main className="tandem-root flex min-h-screen justify-center p-[clamp(1rem,3vw,2.5rem)] text-sm select-none sm:text-base bg-page">
+      <div className="flex w-full max-w-4xl flex-col gap-3">
+        <EditorHeader activeTab={tab} onSelectTab={setTab} />
+        
+        <Box className="relative flex flex-col min-h-[60vh] max-h-[85vh] h-[80vh] justify-between p-[clamp(1.2rem,3vw,2.2rem)]">
+          {tab === "general" ? (
+            <OverviewPanel lines={lines} connected={connected} />
+          ) : (
+            <DocumentPanel 
+              lines={lines} 
+              conflictIndex={conflictIndex} 
+              onEditLine={editLine} 
+              onAddLine={addLine}       
+              onRemoveLine={removeLine}
+            />
+          )}
+          <KeyHints tab={tab} connected={connected} />
+        </Box>
+      </div>
+    </main>
+  );
+}
+</file>
+
+<file path="client/src/components/editor/LineRow.tsx">
+import type { Line } from "@/types/tandem";
+import { KeyboardEvent, ClipboardEvent } from "react";
+import { INDENT, leadingOutdentSize } from "@/lib/indent";
+
+/**
+ * One editable row of the document: a line-number gutter, a text input and (while
+ * Alt is held) a version badge.
+ *
+ * The row only handles keys that concern a single line (arrow navigation, Enter,
+ * Backspace on an empty line, Tab / Shift+Tab, multi-line paste). Everything that
+ * spans several lines (select all, copy/cut, delete/indent of a selection) lives
+ * in DocumentPanel, which sees key events first via a capture handler.
+ *
+ * DocumentPanel finds rows through two data attributes rendered here:
+ *   data-line-gutter  marks the clickable line-number cell
+ *   data-line-id      the line's id (on both the gutter and the input)
+ */
+interface LineRowProps {
+  line: Line;
+  /** The server rejected the last edit to this line: show the conflict style. */
+  hasConflict: boolean;
+  /** Show the version badge and row borders (Alt held). */
+  showVersion: boolean;
+  /** This row is part of the multi-line selection. */
+  selected: boolean;
+  /** Digits in the highest line number; sizes the gutter so numbers align. */
+  maxDigits: number;
+  onChange: (index: number, content: string) => void;
+  onAddLine: (afterIndex: number) => void;
+  onRemoveLine: (index: number) => void;
+  /** Multi-line paste at the caret / selection [start, end) of this line. */
+  onPasteLines: (index: number, start: number, end: number, text: string) => void;
+}
+
+export function LineRow({
+  line,
+  hasConflict,
+  showVersion,
+  selected,
+  maxDigits,
+  onChange,
+  onAddLine,
+  onRemoveLine,
+  onPasteLines,
+}: LineRowProps) {
+  /** Input of the previous / next row, found through the row's wrapper div. */
+  const siblingInput = (el: HTMLElement, dir: "previous" | "next") =>
+    (dir === "previous"
+      ? el.parentElement?.previousElementSibling
+      : el.parentElement?.nextElementSibling
+    )?.querySelector("input");
+
+  /**
+   * Single-line keyboard behaviour.
+   *   Arrow Up/Down   move to the previous / next line
+   *   Enter           add a line below and move into it
+   *   Backspace       on an empty line, remove it and move up
+   *   Tab             insert an indent at the caret
+   *   Shift+Tab       remove one indent level from the start of the line
+   * (Ctrl/Cmd+A is handled by DocumentPanel.)
+   */
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    const target = e.currentTarget;
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      siblingInput(target, "previous")?.focus();
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      siblingInput(target, "next")?.focus();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      onAddLine(line.index);
+      setTimeout(() => siblingInput(target, "next")?.focus(), 0);
+    } else if (e.key === "Backspace" && line.content === "") {
+      e.preventDefault();
+      const prev = siblingInput(target, "previous");
+      onRemoveLine(line.index);
+      prev?.focus();
+    } else if (e.key === "Tab") {
+      e.preventDefault();
+      const start = target.selectionStart ?? target.value.length;
+      const end = target.selectionEnd ?? target.value.length;
+
+      if (e.shiftKey) {
+        const removed = leadingOutdentSize(target.value);
+        if (removed === 0) return;
+        onChange(line.index, target.value.slice(removed));
+        // Keep the caret on the same character after the text shifts left.
+        setTimeout(
+          () => target.setSelectionRange(Math.max(0, start - removed), Math.max(0, end - removed)),
+          0
+        );
+      } else {
+        onChange(line.index, target.value.slice(0, start) + INDENT + target.value.slice(end));
+        setTimeout(() => target.setSelectionRange(start + INDENT.length, start + INDENT.length), 0);
+      }
+    }
+  };
+
+  /**
+   * Pastes containing a line break are handed to DocumentPanel, which splits them
+   * into several lines. Single-line pastes use the browser's normal behaviour.
+   */
+  const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData("text");
+    if (!/[\r\n]/.test(text)) return;
+    e.preventDefault();
+    const t = e.currentTarget;
+    onPasteLines(
+      line.index,
+      t.selectionStart ?? t.value.length,
+      t.selectionEnd ?? t.value.length,
+      text
+    );
+  };
+
+  const background = selected
+    ? "rgba(92, 184, 165, 0.25)"
+    : showVersion
+    ? "rgba(31, 31, 31, 0.5)"
+    : "transparent";
+
+  const digitCount = Math.max(1, maxDigits);
+
+  return (
+    <div
+      className={`flex items-center transition-all py-0 -my-[1px] px-1 rounded-sm border ${
+        hasConflict ? "bg-red-900/30 border-red-500" : ""
+      }`}
+      style={
+        hasConflict
+          ? undefined
+          : {
+              borderColor: selected
+                ? "rgba(92, 184, 165, 0.6)"
+                : showVersion
+                ? "rgba(212, 212, 216, 0.2)"
+                : "transparent",
+              backgroundColor: background,
+            }
+      }
+    >
+      {/* Line number. Clicking it selects the line (handled in DocumentPanel). */}
+      <div
+        data-line-gutter
+        data-line-id={line.id}
+        className="text-[16px] text-dim select-none flex items-center justify-end font-mono"
+        style={{
+          width: `${digitCount}ch`,
+          minWidth: `${digitCount}ch`,
+          flexShrink: 0,
+          paddingRight: "8px",
+          ...(showVersion
+            ? { borderRight: "1px solid rgba(212, 212, 216, 0.2)", marginRight: "0.25rem" }
+            : {}),
+        }}
+      >
+        {line.index}
+      </div>
+
+      <input
+        type="text"
+        value={line.content}
+        data-line-id={line.id}
+        onChange={(e) => onChange(line.index, e.target.value)}
+        onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
+        spellCheck={false}
+        autoComplete="off"
+        data-conflict={hasConflict}
+        className="line-input min-w-0 flex-1 !text-[16px]"
+        style={{ padding: "0.15rem" }}
+      />
+
+      {showVersion && (
+        <div
+          className="text-[16px] font-mono text-teal-400 px-2 py-0.5 select-none ml-4 mr-2 shadow-sm shrink-0"
+          style={{ backgroundColor: "#1f1f1f", border: "1px solid rgba(212, 212, 216, 0.3)" }}
+        >
+          v{line.version}
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="client/src/components/editor/DocumentPanel.tsx">
+import type { Line } from "@/types/tandem";
+import { LineRow } from "./LineRow";
+import { Box } from "@/components/ui";
+import { adjustIndent } from "@/lib/indent";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+/**
+ * DocumentPanel — the "Active Document" editor tab.
+ *
+ * HOW STATE FLOWS
+ * ---------------
+ * There are two copies of the document:
+ *
+ *   1. `lines`      (prop)  The authoritative copy from the server, delivered by
+ *                           useTandemSync.
+ *   2. `localLines` (state) A UI mirror we render from. Structural edits (Enter,
+ *                           Backspace, paste, delete, indent) are applied here
+ *                           immediately so the editor feels instant, then reported
+ *                           to the parent via onEditLine / onAddLine / onRemoveLine.
+ *
+ * Incoming `lines` would briefly undo an optimistic change, so every structural
+ * action takes a "sync lock" (see runOptimistic). While locked, server state is
+ * not merged. The lock is released as soon as the server's lines show the change
+ * (an "ack"), or after a timeout as a fallback. Once released, local state
+ * converges on the server's version.
+ *
+ * MERGE RULES (when unlocked)
+ * ---------------------------
+ *   - Server lines win.
+ *   - Exception: the line being typed in keeps its local text, so the caret never
+ *     jumps because of someone else's update.
+ *   - Exception to the exception: if the server rejected an edit to a line
+ *     (`conflictIndex`), the server's text wins even if that line is focused.
+ *
+ * SELECTION MODEL
+ * ---------------
+ * Whole-line selection is tracked by line id (so it survives remote inserts and
+ * deletes): click a gutter number; Shift = range from the anchor, Ctrl/Cmd = toggle;
+ * Ctrl/Cmd+A = all. It is cleared by Esc, by clicking inside a line, by typing in a
+ * line, and by any structural edit.
+ */
+
+/* ============================== Types & helpers ============================== */
+
+interface DocumentPanelProps {
+  /** Authoritative lines from the server. */
+  lines: Line[];
+  /** Index of a line whose edit was just rejected; it is highlighted briefly. */
+  conflictIndex: number | null;
+  /** Replace the content of an existing line (sent to the server). */
+  onEditLine: (index: number, content: string) => void;
+  /**
+   * Insert an empty line after `afterIndex`. `id` is the client-generated id the
+   * server must assign to the new line so both sides agree on its identity.
+   */
+  onAddLine: (afterIndex: number, id: string) => void;
+  /** Remove the line at `index`. */
+  onRemoveLine: (index: number) => void;
+}
+
+/**
+ * What the server's lines must look like before the sync lock can be released.
+ * The server processes messages in order, so seeing the newest change implies
+ * every earlier one has been applied too.
+ */
+interface Expectation {
+  /** Line ids that must exist (lines we added). */
+  present?: string[];
+  /** The server must have at most this many lines (lines we removed). */
+  maxLength?: number;
+}
+
+/** Short random id for lines created on this client (also used as the React key). */
+const generateId = () => Math.random().toString(36).substring(2, 9);
+
+/** Stable identity for a line, even if the server did not send an id. */
+const idOf = (l: Line): string => l.id ?? `line-${l.index}`;
+
+/** Re-assigns 1-based `index` values so they always match array position. */
+const renumber = (lines: Line[]): Line[] => lines.map((l, i) => ({ ...l, index: i + 1 }));
+
+/** True when the server's lines reflect everything described by `exp`. */
+const isAcked = (serverLines: Line[], exp: Expectation): boolean =>
+  (exp.present ?? []).every((id) => serverLines.some((l) => l.id === id)) &&
+  (exp.maxLength === undefined || serverLines.length <= exp.maxLength);
+
+/** Lock length for actions with no way to be acknowledged (e.g. indenting). */
+const LOCK_SHORT_MS = 600;
+/** Longest we wait for an acknowledgement before trusting the server anyway. */
+const LOCK_MAX_MS = 3000;
+/** Unconfirmed pasted lines older than this are dropped (server never created them). */
+const PENDING_TTL_MS = 10_000;
+
+/* ================================ Component ================================== */
+
+export function DocumentPanel({
+  lines,
+  conflictIndex,
+  onEditLine,
+  onAddLine,
+  onRemoveLine,
+}: DocumentPanelProps) {
+  /** The scrollable list; used for DOM queries (inputs) and keyboard focus. */
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  /** Rendered copy of the document (see "HOW STATE FLOWS" above). */
+  const [localLines, setLocalLines] = useState<Line[]>([
+    { id: generateId(), index: 1, version: 0, content: "" },
+  ]);
+
+  /** True while Alt is held: shows version badges and borders on every row. */
+  const [showVersions, setShowVersions] = useState(false);
+
+  /** Ids of the selected lines (see "SELECTION MODEL"). */
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  /** The line a Shift+click range starts from. */
+  const anchorIdRef = useRef<string | null>(null);
+
+  /** Id of the line whose input has focus, kept current by focus/blur handlers. */
+  const focusedIdRef = useRef<string | null>(null);
+
+  /**
+   * Text for lines we created locally (e.g. from a paste) that the server has not
+   * confirmed yet, keyed by line id. When the server reports a line with that id
+   * we send the text as a normal edit and drop the entry.
+   */
+  const pendingEditsRef = useRef<Map<string, { content: string; at: number }>>(new Map());
+
+  /** Line indices whose server text must replace local text on the next merge. */
+  const forceServerRef = useRef<Set<number>>(new Set());
+
+  /* ------------------------------ Sync lock ------------------------------ */
+
+  const [isOptimisticLocked, setIsOptimisticLocked] = useState(false);
+  const lockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expectedRef = useRef<Expectation | null>(null);
+
+  /** Ends the lock; the sync effect then re-runs and merges the server's lines. */
+  const releaseLock = useCallback(() => {
+    if (lockTimer.current) clearTimeout(lockTimer.current);
+    lockTimer.current = null;
+    expectedRef.current = null;
+    setIsOptimisticLocked(false);
+  }, []);
+
+  /**
+   * Runs an optimistic UI change under the sync lock.
+   * @param expected what the server's lines must show before the lock can end early.
+   *                 Without it the lock is short, because there is nothing to wait for.
+   */
+  const runOptimistic = (fn: () => void, expected?: Expectation) => {
+    if (lockTimer.current) clearTimeout(lockTimer.current);
+    expectedRef.current = expected ?? null;
+    setIsOptimisticLocked(true);
+    lockTimer.current = setTimeout(releaseLock, expected ? LOCK_MAX_MS : LOCK_SHORT_MS);
+    fn();
+  };
+
+  /** Don't leave a timer running if the panel unmounts (e.g. on tab switch). */
+  useEffect(
+    () => () => {
+      if (lockTimer.current) clearTimeout(lockTimer.current);
+    },
+    []
+  );
+
+  /* ------------------------------ Server sync ------------------------------ */
+
+  /**
+   * Remember which line the server just rejected so the next merge lets the
+   * server's text replace the user's text, even if that line is focused.
+   * Declared before the sync effect so it runs first in the same commit.
+   */
+  useEffect(() => {
+    if (conflictIndex !== null) forceServerRef.current.add(conflictIndex);
+  }, [conflictIndex]);
+
+  /**
+   * Merges server state into the local mirror. Runs when the server lines change
+   * and when the sync lock changes.
+   *
+   * 1. Send text for freshly created lines once the server knows about them
+   *    (and drop entries the server never created).
+   * 2. If locked: release the lock if the server has caught up, then stop. The
+   *    merge happens on the re-run that the release triggers.
+   * 3. Otherwise replace localLines with the server's lines (see MERGE RULES).
+   */
+  useEffect(() => {
+    if (lines.length === 0) return;
+
+    // 1. Pending pasted lines.
+    const now = Date.now();
+    pendingEditsRef.current.forEach((pending, id) => {
+      const serverLine = lines.find((l) => l.id === id);
+      if (serverLine) {
+        onEditLine(serverLine.index, pending.content);
+        pendingEditsRef.current.delete(id);
+      } else if (now - pending.at > PENDING_TTL_MS) {
+        pendingEditsRef.current.delete(id);
+      }
+    });
+
+    // 2. Still waiting for the server?
+    if (isOptimisticLocked) {
+      const expected = expectedRef.current;
+      if (expected && isAcked(lines, expected)) releaseLock();
+      return;
+    }
+
+    // 3. Merge. Refs are read here, not inside the updater, to keep it pure.
+    const focusedId = focusedIdRef.current;
+    const forced = new Set(forceServerRef.current);
+    forceServerRef.current.clear();
+
+    setLocalLines((prevLocal) =>
+      lines.map((incoming) => {
+        // Match by id first; fall back to line number for servers without ids.
+        const existing =
+          (incoming.id && prevLocal.find((l) => l.id === incoming.id)) ||
+          prevLocal.find((l) => l.index === incoming.index);
+        const keepLocalText =
+          !!existing && idOf(existing) === focusedId && !forced.has(incoming.index);
+
+        return {
+          ...incoming,
+          content: keepLocalText && existing ? existing.content : incoming.content,
+          // Keep ids stable so React doesn't remount rows (which drops focus).
+          id: incoming.id || existing?.id || generateId(),
+        };
+      })
+    );
+  }, [lines, onEditLine, isOptimisticLocked, releaseLock]);
+
+  /* ------------------------------ Alt = versions ----------------------------- */
+
+  /** Holding Alt reveals each line's version badge; releasing hides it. */
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "Alt") setShowVersions(true);
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.key === "Alt") setShowVersions(false);
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, []);
+
+  /* --------------------------- Selection helpers --------------------------- */
+
+  // Selection is checked against the current lines, so ids of lines that were
+  // removed remotely are simply ignored.
+  const isSelected = (l: Line) => selectedIds.has(idOf(l));
+  const selectedLines = localLines.filter(isSelected);
+  const hasSelection = selectedLines.length > 0;
+  const everythingSelected = hasSelection && selectedLines.length === localLines.length;
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    anchorIdRef.current = null;
+  };
+
+  const selectAll = () => {
+    setSelectedIds(new Set(localLines.map(idOf)));
+    anchorIdRef.current = null;
+  };
+
+  /**
+   * Gutter click on the line with `id`.
+   *   plain click      select only this line (click it again to deselect)
+   *   Shift + click    select the range from the anchor to this line
+   *   Ctrl/Cmd + click toggle this line
+   *   Ctrl+Shift       range, added to the existing selection
+   */
+  const selectLine = (id: string, e: React.MouseEvent) => {
+    const additive = e.ctrlKey || e.metaKey;
+
+    if (e.shiftKey) {
+      const anchorId = anchorIdRef.current ?? id;
+      const a = localLines.findIndex((l) => idOf(l) === anchorId);
+      const b = localLines.findIndex((l) => idOf(l) === id);
+      if (a !== -1 && b !== -1) {
+        const range = localLines.slice(Math.min(a, b), Math.max(a, b) + 1).map(idOf);
+        setSelectedIds((prev) => new Set([...(additive ? Array.from(prev) : []), ...range]));
+        anchorIdRef.current = anchorId;
+        return;
+      }
+    }
+
+    if (additive) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+      anchorIdRef.current = id;
+      return;
+    }
+
+    const onlyThis = selectedIds.size === 1 && selectedIds.has(id);
+    setSelectedIds(onlyThis ? new Set() : new Set([id]));
+    anchorIdRef.current = onlyThis ? null : id;
+  };
+
+  /* ------------------------------ Line editing ------------------------------ */
+
+  /** Typing in a line: update the mirror and report to the parent. */
+  const handleEditLine = (index: number, content: string) => {
+    setLocalLines((prev) => prev.map((l) => (l.index === index ? { ...l, content } : l)));
+    onEditLine(index, content);
+  };
+
+  /** Enter: insert an empty line after `afterIndex`, tagged with a new id. */
+  const handleAddLine = (afterIndex: number) => {
+    const newId = generateId();
+
+    runOptimistic(
+      () => {
+        clearSelection();
+        setLocalLines((prev) => {
+          const next = [...prev];
+          const pos = next.findIndex((l) => l.index === afterIndex) + 1;
+          next.splice(pos, 0, { id: newId, index: afterIndex + 1, version: 0, content: "" });
+          return renumber(next);
+        });
+        onAddLine(afterIndex, newId);
+      },
+      { present: [newId] }
+    );
+  };
+
+  /** Backspace on an empty line: remove it. The last remaining line is kept. */
+  const handleRemoveLine = (index: number) => {
+    // Checked up front so we never tell the server to delete the only line
+    // while the local copy keeps it.
+    if (localLines.length <= 1) return;
+
+    runOptimistic(
+      () => {
+        clearSelection();
+        setLocalLines((prev) => renumber(prev.filter((l) => l.index !== index)));
+        onRemoveLine(index);
+      },
+      { maxLength: localLines.length - 1 }
+    );
+  };
+
+  /**
+   * Multi-line paste at the caret of line `index` (selection = [start, end)).
+   *
+   * The pasted text is split into pieces. Text before the caret joins the first
+   * piece and text after it joins the last, so the original line is split in two.
+   * Piece 0 reuses the existing line; every other piece becomes a new line with a
+   * fresh id. Only called for pastes containing a newline, so pieces.length >= 2.
+   *
+   * Server side: edit the first line, add one empty line per extra piece, and park
+   * each new line's text in `pendingEditsRef` until the server confirms it exists.
+   */
+  const handlePasteLines = (index: number, start: number, end: number, text: string) => {
+    const target = localLines.find((l) => l.index === index);
+    if (!target) return;
+
+    const pieces = text.replace(/\r\n?/g, "\n").split("\n");
+    const newIds = pieces.slice(1).map(() => generateId());
+
+    runOptimistic(
+      () => {
+        const before = target.content.slice(0, start);
+        const after = target.content.slice(end);
+        // Caret goes right after the pasted text, before the preserved tail.
+        const lastLen = pieces[pieces.length - 1].length;
+
+        pieces[0] = before + pieces[0];
+        pieces[pieces.length - 1] += after;
+
+        setLocalLines((prev) => {
+          const pos = prev.findIndex((l) => l.index === index);
+          const replaced: Line[] = pieces.map((content, i) => ({
+            id: i === 0 ? target.id : newIds[i - 1],
+            index: 0, // fixed by renumber()
+            version: i === 0 ? target.version : 0,
+            content,
+          }));
+          return renumber([...prev.slice(0, pos), ...replaced, ...prev.slice(pos + 1)]);
+        });
+
+        // Server: update the existing line, then append the new lines one by one.
+        onEditLine(index, pieces[0]);
+
+        let currIndex = index;
+        for (let i = 1; i < pieces.length; i++) {
+          const newId = newIds[i - 1];
+          onAddLine(currIndex, newId);
+          pendingEditsRef.current.set(newId, { content: pieces[i], at: Date.now() });
+          currIndex++;
+        }
+
+        // After React renders the new rows, focus the last pasted line.
+        setTimeout(() => {
+          const input = containerRef.current?.querySelectorAll("input")[index - 1 + pieces.length - 1];
+          if (input) {
+            input.focus();
+            input.setSelectionRange(lastLen, lastLen);
+          }
+        }, 0);
+      },
+      { present: newIds }
+    );
+  };
+
+  /* ------------------- Selection: copy, delete, indent ------------------- */
+
+  /**
+   * Deletes the selected lines. If everything is selected the document is reset to
+   * a single empty line instead (a document always keeps at least one line).
+   * Server removals go from the bottom up so earlier line numbers stay valid.
+   */
+  const handleDeleteSelected = () => {
+    if (!hasSelection) return;
+
+    const firstDeletedIndex = selectedLines[0].index;
+    const removeDescending = (toRemove: Line[]) =>
+      [...toRemove].sort((a, b) => b.index - a.index).forEach((l) => onRemoveLine(l.index));
+
+    // Case 1: everything selected -> clear to one empty line.
+    if (everythingSelected) {
+      runOptimistic(
+        () => {
+          // Reuse line 1's id so the row isn't remounted (that would drop focus).
+          setLocalLines([
+            { id: localLines[0]?.id ?? generateId(), index: 1, version: 0, content: "" },
+          ]);
+          clearSelection();
+
+          onEditLine(1, "");
+          removeDescending(localLines.filter((l) => l.index !== 1));
+        },
+        { maxLength: 1 }
+      );
+      return;
+    }
+
+    // Case 2: some lines selected -> remove just those.
+    const remaining = localLines.filter((l) => !isSelected(l));
+
+    runOptimistic(
+      () => {
+        removeDescending(selectedLines);
+        setLocalLines(renumber(remaining));
+        clearSelection();
+
+        // Put the cursor where the first deleted line used to be.
+        setTimeout(() => {
+          const inputs = containerRef.current?.querySelectorAll("input");
+          if (inputs && inputs.length > 0) {
+            inputs[Math.max(0, Math.min(firstDeletedIndex - 1, inputs.length - 1))]?.focus();
+          }
+        }, 0);
+      },
+      { maxLength: remaining.length }
+    );
+  };
+
+  /**
+   * Tab / Shift+Tab with lines selected: indent or outdent every selected line.
+   * Only lines whose text actually changed are sent to the server.
+   */
+  const handleTabSelected = (outdent: boolean) => {
+    runOptimistic(() => {
+      const updated = localLines.map((l) =>
+        isSelected(l) ? { ...l, content: adjustIndent(l.content, outdent) } : l
+      );
+
+      setLocalLines(updated);
+
+      updated.forEach((l, i) => {
+        if (l.content !== localLines[i].content) onEditLine(l.index, l.content);
+      });
+    });
+  };
+
+  /* --------------------------- Keyboard & clipboard --------------------------- */
+
+  /**
+   * Capture-phase key handler for the whole list (runs before a row's own handler).
+   *
+   *  - Esc               clear selection and leave the current line
+   *  - Ctrl/Cmd + A      select every line
+   *  - (with a selection)
+   *      Tab / Shift+Tab  indent / outdent the selected lines
+   *      Backspace/Delete delete the selected lines
+   *      Ctrl/Cmd + C/X   left to the copy/cut handlers below
+   *      typing or Enter  (in a focused line) clears the selection
+   *
+   * With no selection it does nothing, so rows handle their own typing, arrow
+   * navigation, Enter, etc.
+   */
+  const handleKeyDownCapture = (e: React.KeyboardEvent) => {
+    const mod = e.ctrlKey || e.metaKey;
+    const inInput =
+      document.activeElement?.tagName === "INPUT" &&
+      !!containerRef.current?.contains(document.activeElement);
+
+    if (e.key === "Escape" && (hasSelection || inInput)) {
+      e.preventDefault();
+      e.stopPropagation();
+      clearSelection();
+      if (inInput) (document.activeElement as HTMLElement).blur();
+      // Park focus on the container so later key presses still reach this handler.
+      containerRef.current?.focus({ preventScroll: true });
+      return;
+    }
+
+    if (mod && e.key.toLowerCase() === "a") {
+      e.preventDefault();
+      selectAll();
+      return;
+    }
+
+    // Everything below only applies while lines are selected.
+    if (!hasSelection) return;
+    if (["Shift", "Control", "Alt", "Meta", "Escape"].includes(e.key)) return;
+    if (mod && ["c", "x"].includes(e.key.toLowerCase())) return;
+
+    if (e.key === "Tab") {
+      e.preventDefault();
+      e.stopPropagation();
+      handleTabSelected(e.shiftKey);
+      return;
+    }
+
+    if (e.key === "Backspace" || e.key === "Delete") {
+      e.preventDefault();
+      e.stopPropagation();
+      handleDeleteSelected();
+      return;
+    }
+
+    // Typing into a line makes the highlighted selection misleading: drop it.
+    if (inInput && (e.key === "Enter" || (e.key.length === 1 && !mod))) {
+      clearSelection();
+    }
+  };
+
+  /** Copy: put the selected lines on the clipboard instead of the DOM selection. */
+  const handleCopy = (e: React.ClipboardEvent) => {
+    if (!hasSelection) return;
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", selectedLines.map((l) => l.content).join("\n"));
+  };
+
+  /** Cut: copy the selected lines, then delete them. */
+  const handleCut = (e: React.ClipboardEvent) => {
+    if (!hasSelection) return;
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", selectedLines.map((l) => l.content).join("\n"));
+    handleDeleteSelected();
+  };
+
+  /* ------------------------------ Mouse selection ----------------------------- */
+
+  /**
+   * Click handling for the whole list. Clicking a line-number gutter selects the
+   * line (see selectLine); any other click (inside a line, or empty space) clears
+   * the selection. Gutters are found through the `data-line-gutter` attribute that
+   * LineRow renders, and carry the line's id in `data-line-id`.
+   */
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const gutter = (e.target as HTMLElement).closest<HTMLElement>("[data-line-gutter]");
+    const id = gutter?.dataset.lineId;
+
+    if (gutter && id && containerRef.current?.contains(gutter)) {
+      // Focus the container so Delete / Tab / Esc are captured while lines are selected.
+      containerRef.current.focus({ preventScroll: true });
+      selectLine(id, e);
+      return;
+    }
+
+    clearSelection();
+  };
+
+  /** Track which line's input is focused (read by the sync effect's merge). */
+  const handleFocusCapture = (e: React.FocusEvent) => {
+    focusedIdRef.current = (e.target as HTMLElement).dataset.lineId ?? null;
+  };
+  const handleBlurCapture = (e: React.FocusEvent) => {
+    if ((e.target as HTMLElement).tagName === "INPUT") focusedIdRef.current = null;
+  };
+
+  /* ---------------------------------- Render ---------------------------------- */
+
+  return (
+    <Box title="Active Document" className="mt-2 flex h-full min-h-0 flex-1 flex-col p-3">
+      {/* tabIndex=-1 lets the list take focus (for selection shortcuts) without
+          becoming a Tab stop. `h-0 flex-1` makes it fill the box and scroll. */}
+      <div
+        ref={containerRef}
+        tabIndex={-1}
+        onClick={handleContainerClick}
+        onKeyDownCapture={handleKeyDownCapture}
+        onFocusCapture={handleFocusCapture}
+        onBlurCapture={handleBlurCapture}
+        onCopy={handleCopy}
+        onCut={handleCut}
+        className="outline-none h-0 flex-1 overflow-y-auto cursor-text px-2 pb-12 overscroll-contain"
+      >
+        {localLines.map((line) => (
+          <LineRow
+            key={idOf(line)}
+            line={line}
+            hasConflict={conflictIndex === line.index}
+            showVersion={showVersions}
+            selected={isSelected(line)}
+            maxDigits={String(localLines.length).length}
+            onChange={handleEditLine}
+            onAddLine={handleAddLine}
+            onRemoveLine={handleRemoveLine}
+            onPasteLines={handlePasteLines}
+          />
+        ))}
+      </div>
+    </Box>
+  );
+}
+</file>
+
+</files>

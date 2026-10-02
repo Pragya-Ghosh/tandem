@@ -42,7 +42,7 @@ body {
   --ok: #8fb573;
   --err: #e06c4f;
   --surface: #1f1f1f;
-  --conflict-bg: #2a2113;
+  --conflict-bg: #2a1513;
 
   background: var(--bg);
   color: var(--fg);
@@ -110,8 +110,9 @@ body {
 .tandem-root .line-input:hover,
 .tandem-root .line-input:focus { background: var(--surface); }
 .tandem-root .line-input:focus { border-color: var(--teal); }
+
 .tandem-root .line-input[data-conflict="true"] {
   background: var(--conflict-bg);
-  border-color: var(--gold);
-  color: var(--gold);
+  border-color: var(--err);
+  color: var(--err);
 }

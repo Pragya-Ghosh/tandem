@@ -389,16 +389,20 @@ export function DocumentPanel({
           return renumber([...prev.slice(0, pos), ...replaced, ...prev.slice(pos + 1)]);
         });
 
-        // Server: update the existing line, then append the new lines one by one.
+        // Server: update the existing line first
         onEditLine(index, pieces[0]);
 
+        // STAGGERED PACING: Send new lines with a 40ms delay per line
+        // to prevent Slow 3G WebSocket buffer choking and eliminate ghost lines.
         let currIndex = index;
-        for (let i = 1; i < pieces.length; i++) {
-          const newId = newIds[i - 1];
-          onAddLine(currIndex, newId);
-          pendingEditsRef.current.set(newId, { content: pieces[i], at: Date.now() });
+        pieces.slice(1).forEach((pieceContent, idx) => {
+          const newId = newIds[idx];
+          setTimeout(() => {
+            onAddLine(currIndex, newId);
+            pendingEditsRef.current.set(newId, { content: pieceContent, at: Date.now() });
+          }, idx * 40);
           currIndex++;
-        }
+        });
 
         // After React renders the new rows, focus the last pasted line.
         setTimeout(() => {
