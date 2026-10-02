@@ -7,15 +7,19 @@ interface DocumentPanelProps {
   lines: Line[];
   conflictIndex: number | null;
   onEditLine: (index: number, content: string) => void;
-  onAddLine?: (afterIndex: number) => void;
+  onAddLine?: (afterIndex: number, id?: string) => void; 
   onRemoveLine?: (index: number) => void;
 }
+
+const generateId = () => Math.random().toString(36).substring(2, 9);
 
 const renumber = (lines: Line[]): Line[] => lines.map((l, i) => ({ ...l, index: i + 1 }));
 
 export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onRemoveLine }: DocumentPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [localLines, setLocalLines] = useState<Line[]>([{ index: 1, version: 0, content: "" }]);
+  
+  // Added stable ID to initial state
+  const [localLines, setLocalLines] = useState<Line[]>([{ id: generateId(), index: 1, version: 0, content: "" }]);
   const [showVersions, setShowVersions] = useState(false);
   const [allSelected, setAllSelected] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
@@ -41,13 +45,16 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
   };
 
   const handleAddLine = (afterIndex: number) => {
+    const newId = generateId(); // Generate stable ID
     setLocalLines((prev) => {
       const next = [...prev];
       const pos = next.findIndex((l) => l.index === afterIndex) + 1;
-      next.splice(pos, 0, { index: afterIndex + 1, version: 0, content: "" });
+      // Inject the stable ID into the new line
+      next.splice(pos, 0, { id: newId, index: afterIndex + 1, version: 0, content: "" });
       return renumber(next);
     });
-    onAddLine?.(afterIndex);
+    // Send the exact same ID to the server so they perfectly match
+    onAddLine?.(afterIndex, newId);
   };
 
   const handleRemoveLine = (index: number) => {
@@ -71,6 +78,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
     setLocalLines((prev) => {
       const pos = prev.findIndex((l) => l.index === index);
       const replaced: Line[] = pieces.map((content, i) => ({
+        id: generateId(), // Add stable ID here as well
         index: 0,
         version: i === 0 ? target.version : 0,
         content,
@@ -103,7 +111,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
     const firstDeletedIndex = sortedSelected[0] ?? 1;
 
     if (allSelected || selectedIndices.size >= localLines.length) {
-      setLocalLines([{ index: 1, version: 0, content: "" }]);
+      setLocalLines([{ id: generateId(), index: 1, version: 0, content: "" }]);
       setAllSelected(false);
       setSelectedIndices(new Set());
       onEditLine(1, "");
@@ -111,7 +119,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
     }
 
     const remaining = localLines.filter((l) => !selectedIndices.has(l.index));
-    const newLines = remaining.length > 0 ? renumber(remaining) : [{ index: 1, version: 0, content: "" }];
+    const newLines = remaining.length > 0 ? renumber(remaining) : [{ id: generateId(), index: 1, version: 0, content: "" }];
 
     setLocalLines(newLines);
     setAllSelected(false);
@@ -267,7 +275,7 @@ export function DocumentPanel({ lines, conflictIndex, onEditLine, onAddLine, onR
       >
         {localLines.map((line) => (
           <LineRow
-            key={line.index}
+            key={line.id || line.index} 
             line={line}
             hasConflict={conflictIndex === line.index}
             showVersion={showVersions}
