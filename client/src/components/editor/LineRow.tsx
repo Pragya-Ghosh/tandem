@@ -1,16 +1,34 @@
 import type { Line } from "@/types/tandem";
 import { KeyboardEvent, ClipboardEvent } from "react";
+import { INDENT, leadingOutdentSize } from "@/lib/indent";
 
+/**
+ * One editable row of the document: a line-number gutter, a text input and (while
+ * Alt is held) a version badge.
+ *
+ * The row only handles keys that concern a single line (arrow navigation, Enter,
+ * Backspace on an empty line, Tab / Shift+Tab, multi-line paste). Everything that
+ * spans several lines (select all, copy/cut, delete/indent of a selection) lives
+ * in DocumentPanel, which sees key events first via a capture handler.
+ *
+ * DocumentPanel finds rows through two data attributes rendered here:
+ *   data-line-gutter  marks the clickable line-number cell
+ *   data-line-id      the line's id (on both the gutter and the input)
+ */
 interface LineRowProps {
   line: Line;
+  /** The server rejected the last edit to this line: show the conflict style. */
   hasConflict: boolean;
+  /** Show the version badge and row borders (Alt held). */
   showVersion: boolean;
+  /** This row is part of the multi-line selection. */
   selected: boolean;
+  /** Digits in the highest line number; sizes the gutter so numbers align. */
   maxDigits: number;
   onChange: (index: number, content: string) => void;
   onAddLine: (afterIndex: number) => void;
   onRemoveLine: (index: number) => void;
-  onSelectAll: () => void;
+  /** Multi-line paste at the caret / selection [start, end) of this line. */
   onPasteLines: (index: number, start: number, end: number, text: string) => void;
 }
 
@@ -23,54 +41,70 @@ export function LineRow({
   onChange,
   onAddLine,
   onRemoveLine,
-  onSelectAll,
   onPasteLines,
 }: LineRowProps) {
+  /** Input of the previous / next row, found through the row's wrapper div. */
   const siblingInput = (el: HTMLElement, dir: "previous" | "next") =>
     (dir === "previous"
       ? el.parentElement?.previousElementSibling
       : el.parentElement?.nextElementSibling
     )?.querySelector("input");
 
+  /**
+   * Single-line keyboard behaviour.
+   *   Arrow Up/Down   move to the previous / next line
+   *   Enter           add a line below and move into it
+   *   Backspace       on an empty line, remove it and move up
+   *   Tab             insert an indent at the caret
+   *   Shift+Tab       remove one indent level from the start of the line
+   * (Ctrl/Cmd+A is handled by DocumentPanel.)
+   */
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     const target = e.currentTarget;
 
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
-      e.preventDefault();
-      onSelectAll();
-    } 
-    else if (e.key === "ArrowUp") {
+    if (e.key === "ArrowUp") {
       e.preventDefault();
       siblingInput(target, "previous")?.focus();
-    } 
-    else if (e.key === "ArrowDown") {
+    } else if (e.key === "ArrowDown") {
       e.preventDefault();
       siblingInput(target, "next")?.focus();
-    } 
-    else if (e.key === "Enter") {
+    } else if (e.key === "Enter") {
       e.preventDefault();
       onAddLine(line.index);
       setTimeout(() => siblingInput(target, "next")?.focus(), 0);
-    } 
-    else if (e.key === "Backspace" && line.content === "") {
+    } else if (e.key === "Backspace" && line.content === "") {
       e.preventDefault();
       const prev = siblingInput(target, "previous");
       onRemoveLine(line.index);
       prev?.focus();
-    } 
-    else if (e.key === "Tab") {
+    } else if (e.key === "Tab") {
       e.preventDefault();
       const start = target.selectionStart ?? target.value.length;
       const end = target.selectionEnd ?? target.value.length;
-      const spaces = "  ";
-      onChange(line.index, target.value.substring(0, start) + spaces + target.value.substring(end));
-      setTimeout(() => target.setSelectionRange(start + spaces.length, start + spaces.length), 0);
+
+      if (e.shiftKey) {
+        const removed = leadingOutdentSize(target.value);
+        if (removed === 0) return;
+        onChange(line.index, target.value.slice(removed));
+        // Keep the caret on the same character after the text shifts left.
+        setTimeout(
+          () => target.setSelectionRange(Math.max(0, start - removed), Math.max(0, end - removed)),
+          0
+        );
+      } else {
+        onChange(line.index, target.value.slice(0, start) + INDENT + target.value.slice(end));
+        setTimeout(() => target.setSelectionRange(start + INDENT.length, start + INDENT.length), 0);
+      }
     }
   };
 
+  /**
+   * Pastes containing a line break are handed to DocumentPanel, which splits them
+   * into several lines. Single-line pastes use the browser's normal behaviour.
+   */
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     const text = e.clipboardData.getData("text");
-    if (!/[\r\n]/.test(text)) return; 
+    if (!/[\r\n]/.test(text)) return;
     e.preventDefault();
     const t = e.currentTarget;
     onPasteLines(
@@ -107,8 +141,11 @@ export function LineRow({
             }
       }
     >
+      {/* Line number. Clicking it selects the line (handled in DocumentPanel). */}
       <div
-        className="w-12 text-[16px] text-dim select-none flex items-center justify-end font-mono"
+        data-line-gutter
+        data-line-id={line.id}
+        className="text-[16px] text-dim select-none flex items-center justify-end font-mono"
         style={{
           width: `${digitCount}ch`,
           minWidth: `${digitCount}ch`,
@@ -125,6 +162,7 @@ export function LineRow({
       <input
         type="text"
         value={line.content}
+        data-line-id={line.id}
         onChange={(e) => onChange(line.index, e.target.value)}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
