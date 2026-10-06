@@ -4,6 +4,7 @@ import { INDENT, leadingOutdentSize } from "@/lib/indent";
 
 interface LineRowProps {
   line: Line;
+  disabled: boolean; 
   hasConflict: boolean;
   showVersion: boolean;
   selected: boolean;
@@ -16,6 +17,7 @@ interface LineRowProps {
 
 export function LineRow({
   line,
+  disabled, 
   hasConflict,
   showVersion,
   selected,
@@ -42,12 +44,12 @@ export function LineRow({
       siblingInput(target, "next")?.focus();
     } else if (e.key === "Enter") {
       e.preventDefault();
-      onAddLine(line.id); // Uses ID
+      onAddLine(line.id); 
       setTimeout(() => siblingInput(target, "next")?.focus(), 0);
     } else if (e.key === "Backspace" && line.content === "") {
       e.preventDefault();
       const prev = siblingInput(target, "previous");
-      onRemoveLine(line.id); // Uses ID
+      onRemoveLine(line.id); 
       prev?.focus();
     } else if (e.key === "Tab") {
       e.preventDefault();
@@ -57,13 +59,13 @@ export function LineRow({
       if (e.shiftKey) {
         const removed = leadingOutdentSize(target.value);
         if (removed === 0) return;
-        onChange(line.id, target.value.slice(removed)); // Uses ID
+        onChange(line.id, target.value.slice(removed)); 
         setTimeout(
           () => target.setSelectionRange(Math.max(0, start - removed), Math.max(0, end - removed)),
           0
         );
       } else {
-        onChange(line.id, target.value.slice(0, start) + INDENT + target.value.slice(end)); // Uses ID
+        onChange(line.id, target.value.slice(0, start) + INDENT + target.value.slice(end)); 
         setTimeout(() => target.setSelectionRange(start + INDENT.length, start + INDENT.length), 0);
       }
     }
@@ -75,7 +77,7 @@ export function LineRow({
     e.preventDefault();
     const t = e.currentTarget;
     onPasteLines(
-      line.id, // Uses ID
+      line.id, 
       t.selectionStart ?? t.value.length,
       t.selectionEnd ?? t.value.length,
       text
@@ -129,13 +131,16 @@ export function LineRow({
         type="text"
         value={line.content}
         data-line-id={line.id}
-        onChange={(e) => onChange(line.id, e.target.value)} // Uses ID
+        onChange={(e) => onChange(line.id, e.target.value)} 
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         spellCheck={false}
         autoComplete="off"
         data-conflict={hasConflict}
-        className="line-input min-w-0 flex-1 !text-[16px]"
+        disabled={disabled} 
+        className={`line-input min-w-0 flex-1 !text-[16px] ${
+          disabled ? "opacity-50 cursor-not-allowed" : ""
+        }`} 
         style={{ padding: "0.15rem" }}
       />
 

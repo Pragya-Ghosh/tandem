@@ -184,84 +184,116 @@ export function useTandemSync(url: string): TandemSocket {
   }, [flushEdit, recompute]);
 
   useEffect(() => {
-    const socket = new WebSocket(url);
-    socketRef.current = socket;
+    let socket: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout>;
+    let isMounted = true;
 
-    socket.onopen = () => {
-      if (socketRef.current === socket) setConnected(true);
-    };
-    socket.onclose = () => {
-      if (socketRef.current === socket) setConnected(false);
-    };
+    const connect = () => {
+      if (!isMounted) return;
+      
+      socket = new WebSocket(url);
+      socketRef.current = socket;
 
-    socket.onmessage = (event) => {
-      if (socketRef.current !== socket) return;
-
-      let message: ServerMessage;
-      try {
-        const raw = JSON.parse(event.data);
-        if (raw && typeof raw.type === "string") {
-          raw.type = raw.type.toLowerCase();
+      socket.onopen = () => {
+        if (socketRef.current === socket) setConnected(true);
+      };
+      
+      socket.onclose = () => {
+        if (socketRef.current === socket) {
+          setConnected(false);
+          // AUTO-RECONNECT: If the connection drops, try again every 2 seconds
+          reconnectTimer = setTimeout(connect, 2000);
         }
-        message = raw as ServerMessage;
-      } catch {
-        return;
-      }
+      };
 
-      const box = boxRef.current;
+      socket.onmessage = (event) => {
+        if (socketRef.current !== socket) return;
 
-      switch (message.type) {
-        case "init":
-        case "line_added":
-        case "line_removed":
-          box.server = message.data;
-          reconcile();
-          break;
-
-        case "line_updated": {
-          const updated = message.data;
-          box.server = box.server.map((l) =>
-            l.id === updated.id && updated.version >= l.version ? updated : l
-          );
-          reconcile();
-          break;
-        }
-
-        case "edit_rejected": {
-          const { authoritativeLine, reason } = message.data;
-          console.warn(reason);
-
-          if (authoritativeLine) {
-            const id = authoritativeLine.id;
-            box.server = box.server.map((l) =>
-              l.id === id && authoritativeLine.version >= l.version ? authoritativeLine : l
-            );
-            
-            // STRICT OCC ENFORCEMENT: First writer to the server wins.
-            // Drop our pending changes immediately so our UI seamlessly snaps
-            // to the authoritative text of the fast client and never overwrites them.
-            box.inFlight.delete(id);
-            box.queued.delete(id);
-            
-            if (typingTimersRef.current.has(id)) {
-              clearTimeout(typingTimersRef.current.get(id)!);
-              typingTimersRef.current.delete(id);
-            }
-
-            reconcile();
-            flash(id);
-          } else {
-            reconcile();
+        let message: ServerMessage;
+        try {
+          const raw = JSON.parse(event.data);
+          if (raw && typeof raw.type === "string") {
+            raw.type = raw.type.toLowerCase();
           }
-          break;
+          message = raw as ServerMessage;
+        } catch {
+          return;
         }
+
+        const box = boxRef.current;
+
+        switch (message.type) {
+          case "init":
+          case "line_added":
+          case "line_removed":
+            box.server = message.data;
+            reconcile();
+            break;
+
+          case "line_updated": {
+            const updated = message.data;
+            box.server = box.server.map((l) =>
+              l.id === updated.id && updated.version >= l.version ? updated : l
+            );
+            reconcile();
+            break;
+          }
+
+          case "edit_rejected": {
+            const { authoritativeLine, reason } = message.data;
+            console.warn(reason);
+
+            if (authoritativeLine) {
+              const id = authoritativeLine.id;
+              box.server = box.server.map((l) =>
+                l.id === id && authoritativeLine.version >= l.version ? authoritativeLine : l
+              );
+              
+              // STRICT OCC ENFORCEMENT: First writer to the server wins.
+              // Drop our pending changes immediately so our UI seamlessly snaps
+              // to the authoritative text of the fast client and never overwrites them.
+              box.inFlight.delete(id);
+              box.queued.delete(id);
+              
+              if (typingTimersRef.current.has(id)) {
+                clearTimeout(typingTimersRef.current.get(id)!);
+                typingTimersRef.current.delete(id);
+              }
+
+              reconcile();
+              flash(id);
+            } else {
+              reconcile();
+            }
+            break;
+          }
+        }
+      };
+    };
+
+    connect();
+
+    // INSTANT OFFLINE DETECTION:
+    // Listen to the browser's native network state to instantly lock the UI
+    const handleOffline = () => setConnected(false);
+    const handleOnline = () => {
+      if (socketRef.current?.readyState !== WebSocket.OPEN) {
+        clearTimeout(reconnectTimer);
+        connect();
       }
     };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
 
     return () => {
+      isMounted = false;
+      clearTimeout(reconnectTimer);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
       if (flashTimer.current) clearTimeout(flashTimer.current);
       typingTimersRef.current.forEach(clearTimeout);
-      socket.close();
+      if (socket) socket.close();
     };
   }, [url, reconcile, flash]);
 

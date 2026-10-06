@@ -13,6 +13,8 @@ import { useEffect, useRef, useState } from "react";
 
 interface DocumentPanelProps {
   lines: Line[];
+  /** True if the WebSocket is currently connected. */
+  connected: boolean;
   /** Identifier of a line whose edit was rejected. */
   conflictId: string | null;
   /** Replace the text of the line `id`. */
@@ -30,6 +32,7 @@ const generateId = () =>
 
 export function DocumentPanel({
   lines,
+  connected, // <-- Added connected prop
   conflictId,
   onEditLine,
   onAddLine,
@@ -270,6 +273,7 @@ export function DocumentPanel({
           <LineRow
             key={line.id}
             line={line}
+            disabled={!connected} 
             hasConflict={conflictId === line.id}
             showVersion={showVersions}
             selected={isSelected(line)}

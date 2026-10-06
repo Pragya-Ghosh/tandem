@@ -32,6 +32,7 @@ export default function TandemEditor() {
           ) : (
             <DocumentPanel 
               lines={lines} 
+              connected = {connected}
               conflictId={conflictId} 
               onEditLine={editLine} 
               onAddLine={addLine}       
