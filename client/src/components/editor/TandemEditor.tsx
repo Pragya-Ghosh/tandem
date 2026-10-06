@@ -14,8 +14,7 @@ import type { Tab } from "@/types/tandem";
 export default function TandemEditor() {
   const [tab, setTab] = useState<Tab>("general");
   
-  // Destructure addLine and removeLine from your hook
-  const { lines, connected, conflictIndex, editLine, addLine, removeLine } = useTandemSync(WS_URL);
+  const { lines, connected, conflictId, editLine, addLine, removeLine } = useTandemSync(WS_URL);
 
   useHotkeys({
     F2: () => setTab((t) => (t === "general" ? "editor" : "general")),
@@ -33,7 +32,7 @@ export default function TandemEditor() {
           ) : (
             <DocumentPanel 
               lines={lines} 
-              conflictIndex={conflictIndex} 
+              conflictId={conflictId} 
               onEditLine={editLine} 
               onAddLine={addLine}       
               onRemoveLine={removeLine}

@@ -7,8 +7,9 @@ const MAX_ID_LENGTH = 64;
 
 /**
  * In-memory document: an ordered list of lines `{ id, index, version, content }`.
- *  - `index` is the 1-based position and is renumbered after every structural change.
- *  - `id` is stable for the life of a line, so clients can keep track of it.
+ *  - `id` is stable for the life of a line. ALL operations address lines by id,
+ *    because line numbers shift whenever another client adds or removes a line.
+ *  - `index` is the 1-based position, renumbered after every structural change.
  *  - `version` goes up by one on every accepted edit (optimistic concurrency).
  */
 class DocumentStore {
@@ -34,18 +35,17 @@ class DocumentStore {
    * Returns one of:
    *   { success: true,  line }                     edit applied
    *   { success: false, line, reason }             version conflict (line = current server copy)
-   *   { success: false, reason, missing: true }    the line doesn't exist (no `line`)
-   *   { success: false, reason }                   invalid input
+   *   { success: false, reason }                   line missing or input invalid
    */
-  applyEdit(lineIndex, baseVersion, newContent) {
+  applyEdit(lineId, baseVersion, newContent) {
     if (typeof newContent !== "string" || newContent.length > MAX_LINE_LENGTH) {
       return { success: false, reason: "Invalid or oversized line content." };
     }
 
-    const line = this.lines.find((l) => l.index === lineIndex);
+    const line = this.lines.find((l) => l.id === lineId);
 
     if (!line) {
-      return { success: false, missing: true, reason: `Line ${lineIndex} does not exist.` };
+      return { success: false, reason: `Line ${lineId} does not exist.` };
     }
 
     if (baseVersion !== line.version) {
@@ -63,49 +63,53 @@ class DocumentStore {
   }
 
   /**
-   * Inserts a blank line after `afterIndex` (Enter key).
-   * `clientId` lets the client name the new line so it keeps its identity while the
-   * server's answer is in flight. It is ignored if it is invalid or already in use.
+   * Inserts a blank line with the client-chosen id `clientId` after the line
+   * `afterId` (at the end if that line no longer exists).
+   * Idempotent: if `clientId` already exists the document is left unchanged.
    */
-  addLine(afterIndex, clientId) {
+  addLine(afterId, clientId) {
+    const idIsValid =
+      typeof clientId === "string" && clientId.length > 0 && clientId.length <= MAX_ID_LENGTH;
+
+    if (!idIsValid) {
+      return { success: false, reason: "A valid line id is required." };
+    }
+
+    if (this.lines.some((l) => l.id === clientId)) {
+      return { success: true, snapshot: this.lines };
+    }
+
     if (this.lines.length >= MAX_LINES) {
       return { success: false, reason: "Document is full." };
     }
 
-    const pos = this.lines.findIndex((l) => l.index === afterIndex);
+    const pos = this.lines.findIndex((l) => l.id === afterId);
     const insertIdx = pos !== -1 ? pos + 1 : this.lines.length;
 
-    const idIsUsable =
-      typeof clientId === "string" &&
-      clientId.length > 0 &&
-      clientId.length <= MAX_ID_LENGTH &&
-      !this.lines.some((l) => l.id === clientId);
-
     this.lines.splice(insertIdx, 0, {
-      id: idIsUsable ? clientId : generateId(),
+      id: clientId,
       index: 0, // fixed by the renumber below
       version: 1,
       content: "",
     });
 
-    // Renumber to keep 1-based indexing; ids stay as they are.
     this.lines = this.lines.map((l, i) => ({ ...l, index: i + 1 }));
 
     return { success: true, snapshot: this.lines };
   }
 
-  /** Removes the line at `index` (Backspace on an empty line, delete selection). */
-  removeLine(index) {
+  /** Removes a line by id. The last remaining line can't be removed. */
+  removeLine(lineId) {
     if (this.lines.length <= 1) {
       return { success: false, reason: "Cannot delete the last remaining line." };
     }
 
-    if (!this.lines.some((l) => l.index === index)) {
-      return { success: false, reason: `Line ${index} does not exist.` };
+    if (!this.lines.some((l) => l.id === lineId)) {
+      return { success: false, reason: `Line ${lineId} does not exist.` };
     }
 
     this.lines = this.lines
-      .filter((l) => l.index !== index)
+      .filter((l) => l.id !== lineId)
       .map((l, i) => ({ ...l, index: i + 1 }));
 
     return { success: true, snapshot: this.lines };
