@@ -29,7 +29,7 @@ Tandem utilizes a modern web-based Client-Server architecture to ensure sub-mill
 * **Frontend:** Next.js and React to manage the editor's UI state and render the text array.
 * **Backend:** A Node.js server that manages WebSocket connections and keeps the document synchronized across all users.
 * **Database Layer:** A persistent relational database (PostgreSQL via Supabase) to store the authoritative code state and safely commit concurrent edits.
-* **Transport Layer:** WebSockets (via Socket.io) for persistent, bi-directional, full-duplex communication.
+* **Transport Layer:** Native WebSockets for persistent, bi-directional, full-duplex communication.
 
 ## Project Scope
 
