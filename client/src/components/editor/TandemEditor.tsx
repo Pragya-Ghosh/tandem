@@ -13,7 +13,6 @@ import type { Tab } from "@/types/tandem";
 
 export default function TandemEditor() {
   const [tab, setTab] = useState<Tab>("general");
-  
   const { lines, connected, conflictId, editLine, addLine, removeLine } = useTandemSync(WS_URL);
 
   useHotkeys({
@@ -22,26 +21,36 @@ export default function TandemEditor() {
   });
 
   return (
-    <main className="tandem-root flex min-h-screen justify-center p-[clamp(1rem,3vw,2.5rem)] text-sm select-none sm:text-base bg-page">
-      <div className="flex w-full max-w-4xl flex-col gap-3">
-        <EditorHeader activeTab={tab} onSelectTab={setTab} />
-        
-        <Box className="relative flex flex-col min-h-[60vh] max-h-[85vh] h-[80vh] justify-between p-[clamp(1.2rem,3vw,2.2rem)]">
+    <main className="tandem-root bg-page flex h-dvh w-full flex-col gap-3 overflow-hidden p-[clamp(1rem,2vw,1.5rem)] text-sm select-none sm:text-base">
+      <EditorHeader activeTab={tab} onSelectTab={setTab} />
+
+      {/* The main box takes all the height the header leaves. */}
+      <Box className="relative flex min-h-0 flex-1 flex-col p-[clamp(1rem,2.5vw,2rem)]">
+        <div
+          className={`flex min-h-0 flex-1 flex-col ${
+            tab === "general"
+              ? "overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              : ""
+          }`}
+        >
           {tab === "general" ? (
-            <OverviewPanel lines={lines} connected={connected} />
+            <div className="my-auto">
+              <OverviewPanel lines={lines} connected={connected} />
+            </div>
           ) : (
-            <DocumentPanel 
-              lines={lines} 
-              connected = {connected}
-              conflictId={conflictId} 
-              onEditLine={editLine} 
-              onAddLine={addLine}       
+            <DocumentPanel
+              lines={lines}
+              connected={connected}
+              conflictId={conflictId}
+              onEditLine={editLine}
+              onAddLine={addLine}
               onRemoveLine={removeLine}
             />
           )}
-          <KeyHints tab={tab} connected={connected} />
-        </Box>
-      </div>
+        </div>
+
+        <KeyHints tab={tab} connected={connected} />
+      </Box>
     </main>
   );
 }

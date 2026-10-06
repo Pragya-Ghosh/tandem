@@ -32,7 +32,7 @@ const generateId = () =>
 
 export function DocumentPanel({
   lines,
-  connected, // <-- Added connected prop
+  connected,
   conflictId,
   onEditLine,
   onAddLine,

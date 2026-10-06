@@ -1,8 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Silkscreen:wght@700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@600;750&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --bg-dark: #09090b;      /* Very dark background for terminal contrast */
@@ -62,8 +60,8 @@ body {
 .tandem-root .border-dim { border-color: var(--dim); }
 
 .tandem-root .pixel {
-  font-family: "Silkscreen", "JetBrains Mono", monospace !important;
-  font-weight: 700 !important;
+  font-family: "Pixelify Sans", monospace !important;
+  font-weight: 700;
 }
 
 /* ---- Tab Button ---- */
