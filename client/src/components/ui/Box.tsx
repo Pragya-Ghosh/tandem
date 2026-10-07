@@ -12,7 +12,7 @@ export function Box({ title, className = "", children }: BoxProps) {
   return (
     <section className={`relative border border-fg ${className}`}>
       {title && (
-        <span className="absolute -top-[0.7em] left-1/2 -translate-x-1/2 bg-page px-1 leading-none whitespace-nowrap">
+        <span className="absolute top-[-0.7em] left-1/2 -translate-x-1/2 bg-page px-1 leading-none whitespace-nowrap">
           <span className="fg-dim">|</span>
           <span className="fg font-bold">{title}</span>
           <span className="fg-dim">|</span>

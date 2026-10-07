@@ -28,7 +28,7 @@ export default function TandemEditor() {
         <div
           className={`flex min-h-0 flex-1 flex-col ${
             tab === "general"
-              ? "overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              ? "overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden"
               : ""
           }`}
         >
