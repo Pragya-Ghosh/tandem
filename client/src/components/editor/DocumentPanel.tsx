@@ -5,10 +5,10 @@ import { adjustIndent } from "@/lib/indent";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * DocumentPanel — the "Active Document" editor tab.
- * 
- * All actions are tracked strictly by line ID so that dynamic line shifts
- * (from inserts, deletes, or remote syncs) never misalign edits or conflicts.
+- DocumentPanel — the "Active Document" editor tab.
+- 
+- All actions are tracked strictly by line ID so that dynamic line shifts
+- (from inserts, deletes, or remote syncs) never misalign edits or conflicts.
  */
 
 interface DocumentPanelProps {
@@ -50,11 +50,20 @@ export function DocumentPanel({
     const up = (e: KeyboardEvent) => {
       if (e.key === "Alt") setShowVersions(false);
     };
+    
+    // Prevent "stuck Alt key" if user clicks away or switches tabs while holding Alt
+    const hideVersions = () => setShowVersions(false);
+    
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
+    window.addEventListener("blur", hideVersions);
+    document.addEventListener("visibilitychange", hideVersions);
+    
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", hideVersions);
+      document.removeEventListener("visibilitychange", hideVersions);
     };
   }, []);
 
@@ -77,6 +86,11 @@ export function DocumentPanel({
     const additive = e.ctrlKey || e.metaKey;
 
     if (e.shiftKey) {
+      // Safely reset anchor if it was deleted remotely by another user
+      if (anchorIdRef.current && !lines.some(l => l.id === anchorIdRef.current)) {
+        anchorIdRef.current = null;
+      }
+      
       const anchorId = anchorIdRef.current ?? id;
       const a = lines.findIndex((l) => l.id === anchorId);
       const b = lines.findIndex((l) => l.id === id);
@@ -149,12 +163,14 @@ export function DocumentPanel({
 
     let currAfterId = target.id;
     let finalId = target.id;
+    
+    // Process synchronously instead of staggering with setTimeout. 
+    // This allows React and the WebSocket to batch the operations atomically,
+    // preventing fractured states and ensuring the DOM exists for focusInputById.
     pieces.slice(1).forEach((pieceContent, idx) => {
       const newId = newIds[idx];
-      setTimeout(() => {
-        onAddLine(currAfterId, newId);
-        onEditLine(newId, pieceContent);
-      }, idx * 40);
+      onAddLine(currAfterId, newId);
+      onEditLine(newId, pieceContent);
       currAfterId = newId;
       finalId = newId;
     });
@@ -166,6 +182,11 @@ export function DocumentPanel({
     if (!hasSelection) return;
     const firstId = selectedLines[0].id;
 
+    // Find the line immediately preceding the selection to focus on
+    // after the selected lines are destroyed.
+    const firstIdx = lines.findIndex((l) => l.id === firstId);
+    const focusTargetId = firstIdx > 0 ? lines[firstIdx - 1].id : lines[0].id;
+
     if (everythingSelected) {
       onEditLine(lines[0].id, "");
       lines.slice(1).forEach((l) => onRemoveLine(l.id));
@@ -174,7 +195,7 @@ export function DocumentPanel({
     }
 
     clearSelection();
-    focusInputById(firstId);
+    focusInputById(everythingSelected ? lines[0].id : focusTargetId);
   };
 
   const handleTabSelected = (outdent: boolean) => {
@@ -201,6 +222,7 @@ export function DocumentPanel({
       return;
     }
 
+    // Preserved UX: Ctrl+A strictly selects the whole document.
     if (mod && e.key.toLowerCase() === "a") {
       e.preventDefault();
       selectAll();
