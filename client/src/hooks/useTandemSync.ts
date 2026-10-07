@@ -14,7 +14,7 @@ interface TandemSocket {
 interface Outbox {
   server: Line[];
   inFlight: Map<string, { baseVersion: number; content: string; at: number }>;
-  queued: Map<string, { baseVersion: number; content: string }>;
+  queued: Map<string, { baseVersion: number; content: string; at: number }>;
   adds: Map<string, { afterId: string; at: number }>;
   removes: Map<string, number>;
 }
@@ -31,9 +31,26 @@ const emptyOutbox = (): Outbox => ({
   removes: new Map(),
 });
 
+/** CORE FIX: Helper to guarantee every line object always has a valid timestamp */
+const sanitizeLine = (l: Partial<Line>, fallbackTime = Date.now()): Line => {
+  const parsedTs = Number(l.timestamp);
+  const validTimestamp = (!parsedTs || isNaN(parsedTs) || parsedTs <= 0) ? fallbackTime : parsedTs;
+  
+  return {
+    id: l.id ?? Math.random().toString(36).substring(2, 9),
+    index: Number(l.index) || 0,
+    version: Number(l.version) || 1,
+    content: l.content ?? "",
+    timestamp: validTimestamp,
+  };
+};
+
 function rebase(box: Outbox): Line[] {
   const serverIds = new Set(box.server.map((l) => l.id));
-  const newLine = (id: string): Line => ({ id, index: 0, version: 1, content: "" });
+  
+  const newLine = (id: string, at?: number): Line => ({ 
+    id, index: 0, version: 1, content: "", timestamp: Number(at) || Date.now() 
+  });
 
   const addedAfter = new Map<string, string[]>();
   box.adds.forEach(({ afterId }, id) => {
@@ -47,24 +64,26 @@ function rebase(box: Outbox): Line[] {
   const placed = new Set<string>();
 
   const placeAddsAfter = (afterId: string) => {
-    const stack = [...(addedAfter.get(afterId) ?? [])];
-    while (stack.length > 0) {
-      const id = stack.pop() as string;
+    const queue = [...(addedAfter.get(afterId) ?? [])];
+    while (queue.length > 0) {
+      const id = queue.shift() as string;
       if (placed.has(id)) continue;
-      out.push(newLine(id));
+      
+      out.push(newLine(id, box.adds.get(id)?.at));
       placed.add(id);
-      stack.push(...(addedAfter.get(id) ?? []));
+      queue.push(...(addedAfter.get(id) ?? []));
     }
   };
 
+  // CORE FIX: Sanitize all server lines on entry to rebase
   box.server.forEach((l) => {
-    out.push({ ...l });
+    out.push(sanitizeLine(l));
     placeAddsAfter(l.id);
   });
 
   box.adds.forEach((_, id) => {
     if (serverIds.has(id) || placed.has(id)) return;
-    out.push(newLine(id));
+    out.push(newLine(id, box.adds.get(id)?.at));
     placed.add(id);
     placeAddsAfter(id);
   });
@@ -72,8 +91,15 @@ function rebase(box: Outbox): Line[] {
   if (box.removes.size > 0) out = out.filter((l) => !box.removes.has(l.id));
 
   out = out.map((l) => {
-    const pending = box.queued.get(l.id)?.content ?? box.inFlight.get(l.id)?.content;
-    return pending === undefined ? l : { ...l, content: pending, version: l.version + 1 };
+    const pending = box.queued.get(l.id) ?? box.inFlight.get(l.id);
+    return pending === undefined 
+      ? sanitizeLine(l)
+      : { 
+          ...sanitizeLine(l), 
+          content: pending.content, 
+          version: l.version + 1, 
+          timestamp: Number(pending.at) || Date.now() 
+        };
   });
 
   return out.map((l, i) => ({ ...l, index: i + 1 }));
@@ -139,7 +165,11 @@ export function useTandemSync(url: string): TandemSocket {
       }
       
       box.queued.delete(id);
-      box.inFlight.set(id, { baseVersion: queuedEdit.baseVersion, content: queuedEdit.content, at: Date.now() });
+      box.inFlight.set(id, { 
+        baseVersion: queuedEdit.baseVersion, 
+        content: queuedEdit.content, 
+        at: queuedEdit.at ?? Date.now() 
+      });
     },
     [send]
   );
@@ -161,16 +191,17 @@ export function useTandemSync(url: string): TandemSocket {
     box.inFlight.forEach((f, id) => {
       const line = byId.get(id);
       const lineGone = !line && !box.adds.has(id);
-      const acked = !!line && line.version === f.baseVersion + 1 && line.content === f.content;
       
-      if (acked) {
+      const ackedOrOverwritten = !!line && line.version > f.baseVersion;
+      
+      if (ackedOrOverwritten) {
         const q = box.queued.get(id);
         if (q) {
           q.baseVersion = line.version;
         }
       }
 
-      if (lineGone || acked || now - f.at > EDIT_TIMEOUT_MS) {
+      if (lineGone || ackedOrOverwritten || now - f.at > EDIT_TIMEOUT_MS) {
         box.inFlight.delete(id);
       }
     });
@@ -201,7 +232,6 @@ export function useTandemSync(url: string): TandemSocket {
       socket.onclose = () => {
         if (socketRef.current === socket) {
           setConnected(false);
-          // AUTO-RECONNECT: If the connection drops, try again every 2 seconds
           reconnectTimer = setTimeout(connect, 2000);
         }
       };
@@ -226,12 +256,16 @@ export function useTandemSync(url: string): TandemSocket {
           case "init":
           case "line_added":
           case "line_removed":
-            box.server = message.data;
+            // CORE FIX: Sanitize incoming server arrays instantly
+            box.server = Array.isArray(message.data) 
+              ? message.data.map((l) => sanitizeLine(l))
+              : [];
             reconcile();
             break;
 
           case "line_updated": {
-            const updated = message.data;
+            // CORE FIX: Sanitize single updated line instantly
+            const updated = sanitizeLine(message.data);
             box.server = box.server.map((l) =>
               l.id === updated.id && updated.version >= l.version ? updated : l
             );
@@ -244,14 +278,12 @@ export function useTandemSync(url: string): TandemSocket {
             console.warn(reason);
 
             if (authoritativeLine) {
-              const id = authoritativeLine.id;
+              const sanitizedAuth = sanitizeLine(authoritativeLine);
+              const id = sanitizedAuth.id;
               box.server = box.server.map((l) =>
-                l.id === id && authoritativeLine.version >= l.version ? authoritativeLine : l
+                l.id === id && sanitizedAuth.version >= l.version ? sanitizedAuth : l
               );
               
-              // STRICT OCC ENFORCEMENT: First writer to the server wins.
-              // Drop our pending changes immediately so our UI seamlessly snaps
-              // to the authoritative text of the fast client and never overwrites them.
               box.inFlight.delete(id);
               box.queued.delete(id);
               
@@ -273,8 +305,6 @@ export function useTandemSync(url: string): TandemSocket {
 
     connect();
 
-    // INSTANT OFFLINE DETECTION:
-    // Listen to the browser's native network state to instantly lock the UI
     const handleOffline = () => setConnected(false);
     const handleOnline = () => {
       if (socketRef.current?.readyState !== WebSocket.OPEN) {
@@ -303,11 +333,11 @@ export function useTandemSync(url: string): TandemSocket {
       
       const existingQueued = boxRef.current.queued.get(id);
       if (existingQueued) {
-        boxRef.current.queued.set(id, { ...existingQueued, content });
+        boxRef.current.queued.set(id, { ...existingQueued, content, at: Date.now() });
       } else {
         const serverLine = boxRef.current.server.find((l) => l.id === id);
         const baseVersion = serverLine ? serverLine.version : (boxRef.current.adds.has(id) ? 1 : 1);
-        boxRef.current.queued.set(id, { baseVersion, content });
+        boxRef.current.queued.set(id, { baseVersion, content, at: Date.now() });
       }
 
       recompute(); 

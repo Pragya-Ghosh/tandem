@@ -6,21 +6,32 @@ const MAX_LINE_LENGTH = 10000;
 const MAX_ID_LENGTH = 64;
 
 /**
- * In-memory document: an ordered list of lines `{ id, index, version, content }`.
- *  - `id` is stable for the life of a line. ALL operations address lines by id,
- *    because line numbers shift whenever another client adds or removes a line.
+ * In-memory document: an ordered list of lines `{ id, index, version, content, timestamp }`.
+ *  - `id` is stable for the life of a line. ALL operations address lines by id.
  *  - `index` is the 1-based position, renumbered after every structural change.
  *  - `version` goes up by one on every accepted edit (optimistic concurrency).
+ *  - `timestamp` tracks the exact server time of the last modification.
  */
 class DocumentStore {
   constructor(initialLines = []) {
+    const now = Date.now();
     this.lines =
       initialLines.length > 0
-        ? initialLines.map((l, i) => ({ ...l, id: l.id ?? generateId(), index: i + 1 }))
+        ? initialLines.map((l, i) => {
+            const parsedTs = Number(l.timestamp);
+            const validTimestamp = (!parsedTs || isNaN(parsedTs) || parsedTs <= 0) ? now : parsedTs;
+            
+            return {
+              ...l,
+              id: l.id ?? generateId(),
+              index: i + 1,
+              timestamp: validTimestamp, // Bulletproof timestamp parsing
+            };
+          })
         : [
-            { id: generateId(), index: 1, version: 1, content: "function initialize() {" },
-            { id: generateId(), index: 2, version: 1, content: "  console.log('Tandem is live!');" },
-            { id: generateId(), index: 3, version: 1, content: "}" },
+            { id: generateId(), index: 1, version: 1, content: "function initialize() {", timestamp: now },
+            { id: generateId(), index: 2, version: 1, content: "  console.log('Tandem is live!');", timestamp: now },
+            { id: generateId(), index: 3, version: 1, content: "}", timestamp: now },
           ];
   }
 
@@ -31,11 +42,6 @@ class DocumentStore {
 
   /**
    * Applies an edit if it was based on the line's current version.
-   *
-   * Returns one of:
-   *   { success: true,  line }                     edit applied
-   *   { success: false, line, reason }             version conflict (line = current server copy)
-   *   { success: false, reason }                   line missing or input invalid
    */
   applyEdit(lineId, baseVersion, newContent) {
     if (typeof newContent !== "string" || newContent.length > MAX_LINE_LENGTH) {
@@ -58,14 +64,13 @@ class DocumentStore {
 
     line.content = newContent;
     line.version += 1;
+    line.timestamp = Date.now(); // Authoritative time of edit
 
     return { success: true, line: { ...line } };
   }
 
   /**
-   * Inserts a blank line with the client-chosen id `clientId` after the line
-   * `afterId` (at the end if that line no longer exists).
-   * Idempotent: if `clientId` already exists the document is left unchanged.
+   * Inserts a blank line with the client-chosen id `clientId` after the line `afterId`.
    */
   addLine(afterId, clientId) {
     const idIsValid =
@@ -91,6 +96,7 @@ class DocumentStore {
       index: 0, // fixed by the renumber below
       version: 1,
       content: "",
+      timestamp: Date.now(), // Authoritative time of creation
     });
 
     this.lines = this.lines.map((l, i) => ({ ...l, index: i + 1 }));

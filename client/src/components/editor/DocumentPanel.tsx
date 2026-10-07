@@ -222,7 +222,6 @@ export function DocumentPanel({
       return;
     }
 
-    // Preserved UX: Ctrl+A strictly selects the whole document.
     if (mod && e.key.toLowerCase() === "a") {
       e.preventDefault();
       selectAll();

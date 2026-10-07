@@ -8,6 +8,8 @@ export interface Line {
   /** Increases by one on every accepted edit (optimistic concurrency). */
   version: number;
   content: string;
+  /** The server/authoritative time this line was last modified. */
+  timestamp: number; 
 }
 
 export type Tab = "general" | "editor";
