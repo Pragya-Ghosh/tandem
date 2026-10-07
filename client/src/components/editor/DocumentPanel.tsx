@@ -286,7 +286,7 @@ export function DocumentPanel({
         onKeyDownCapture={handleKeyDownCapture}
         onCopy={handleCopy}
         onCut={handleCut}
-        className="outline-none h-0 flex-1 overflow-y-auto cursor-text px-2 pb-12 overscroll-contain"
+        className="outline-none h-0 flex-1 overflow-y-auto cursor-text px-2 pt-3 pb-12 overscroll-contain"
       >
         {lines.length === 0 && <p className="fg-dim px-2">Waiting for the server…</p>}
 

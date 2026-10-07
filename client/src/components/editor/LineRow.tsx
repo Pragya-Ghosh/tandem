@@ -94,7 +94,7 @@ export function LineRow({
 
   return (
     <div
-      className={`flex items-center transition-all py-0 -my-[1px] px-1 rounded-sm border ${
+      className={`flex items-center w-full transition-all py-0 -my-[1px] px-1.5 rounded-sm border ${
         hasConflict ? "bg-red-900/30 border-red-500" : ""
       }`}
       style={
@@ -116,12 +116,12 @@ export function LineRow({
         className="text-[16px] text-dim select-none flex items-center justify-end font-mono"
         style={{
           width: `${digitCount}ch`,
-          minWidth: `${digitCount}ch`,
           flexShrink: 0,
-          paddingRight: "8px",
-          ...(showVersion
-            ? { borderRight: "1px solid rgba(212, 212, 216, 0.2)", marginRight: "0.25rem" }
-            : {}),
+          paddingRight: "10px",  
+          marginRight: "10px",  
+          borderRight: "1px solid",
+          borderColor: showVersion ? "rgba(212, 212, 216, 0.2)" : "transparent",
+          boxSizing: "content-box", 
         }}
       >
         {line.index}
@@ -138,15 +138,15 @@ export function LineRow({
         autoComplete="off"
         data-conflict={hasConflict}
         disabled={disabled} 
-        className={`line-input min-w-0 flex-1 !text-[16px] ${
+        className={`line-input bg-transparent outline-none min-w-0 flex-1 !text-[16px] ${
           disabled ? "opacity-50 cursor-not-allowed" : ""
         }`} 
-        style={{ padding: "0.15rem" }}
+        style={{ padding: "0.15rem 0" }}
       />
 
       {showVersion && (
         <div
-          className="text-[16px] font-mono text-teal-400 px-2 py-0.5 select-none ml-4 mr-2 shadow-sm shrink-0"
+          className="text-[13px] font-mono text-teal-400 px-2 py-0.5 rounded-sm select-none ml-2 shrink-0"
           style={{ backgroundColor: "#1f1f1f", border: "1px solid rgba(212, 212, 216, 0.3)" }}
         >
           v{line.version}
