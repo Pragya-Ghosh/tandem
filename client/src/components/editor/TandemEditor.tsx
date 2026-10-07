@@ -24,7 +24,6 @@ export default function TandemEditor() {
     <main className="tandem-root bg-page flex h-dvh w-full flex-col gap-3 overflow-hidden p-[clamp(1rem,2vw,1.5rem)] text-sm select-none sm:text-base">
       <EditorHeader activeTab={tab} onSelectTab={setTab} />
 
-      {/* The main box takes all the height the header leaves. */}
       <Box className="relative flex min-h-0 flex-1 flex-col p-[clamp(1rem,2.5vw,2rem)]">
         <div
           className={`flex min-h-0 flex-1 flex-col ${
