@@ -16,6 +16,7 @@ export function KeyHints({ tab, connected }: KeyHintsProps) {
         <Key keyName="F2" label="Next" />
         {tab === "editor" && (
           <>
+            <Key keyName="Ctrl+S" label="Save" />
             <Key keyName="Esc" label="Leave line(s)" />
             <Key keyName="Ctrl+A" label="Select all" />
             <Key keyName="Shift+Click" label="Select lines" />

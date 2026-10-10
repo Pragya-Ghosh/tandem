@@ -8,5 +8,9 @@ module.exports = {
     REMOVE_LINE: 'remove_line',
     LINE_ADDED: 'line_added',
     LINE_REMOVED: 'line_removed',
+
+    SAVE: 'save',             // Client -> Server: "Write this document to disk"
+    SAVE_ACK: 'save_ack',     // Server -> Client: "Successfully saved"
+    SAVE_ERROR: 'save_error', // Server -> Client: "Write failed"
   },
 };

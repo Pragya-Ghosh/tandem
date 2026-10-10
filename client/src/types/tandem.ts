@@ -8,8 +8,8 @@ export interface Line {
   /** Increases by one on every accepted edit (optimistic concurrency). */
   version: number;
   content: string;
-  /** The server/authoritative time this line was last modified. */
-  timestamp: number; 
+  /** When the line last changed, as far as this client knows (ms since epoch). */
+  timestamp: number;
 }
 
 export type Tab = "general" | "editor";
@@ -26,13 +26,19 @@ export interface EditRejectedPayload {
 
 export type ServerMessage =
   /** Full snapshots: initial load, resync, or a structural change. */
-  | { type: "init" | "line_added" | "line_removed"; data: Line[]; protocol?: number }
+  | { type: "init"; data: Line[]; protocol?: number; dirty?: boolean; savedAt?: number | null }
+  | { type: "line_added" | "line_removed"; data: Line[] }
   | { type: "line_updated"; data: Line }
-  | { type: "edit_rejected"; data: EditRejectedPayload };
+  | { type: "edit_rejected"; data: EditRejectedPayload }
+  /** The file was written to disk (sent to everyone who has it open). */
+  | { type: "save_ack"; data: { savedAt: number } }
+  | { type: "save_error"; data: { reason: string } };
 
 /* ---------- client -> server ---------- */
 
 export type ClientMessage =
   | { type: "edit_line"; data: { lineId: string; baseVersion: number; newContent: string } }
   | { type: "add_line"; data: { afterId: string; id: string } }
-  | { type: "remove_line"; data: { lineId: string } };
+  | { type: "remove_line"; data: { lineId: string } }
+  /** Ask the server to write the file to disk. */
+  | { type: "save" };

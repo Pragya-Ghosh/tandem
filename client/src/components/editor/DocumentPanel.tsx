@@ -5,10 +5,10 @@ import { adjustIndent } from "@/lib/indent";
 import { useEffect, useRef, useState } from "react";
 
 /**
-- DocumentPanel — the "Active Document" editor tab.
-- 
-- All actions are tracked strictly by line ID so that dynamic line shifts
-- (from inserts, deletes, or remote syncs) never misalign edits or conflicts.
+ * DocumentPanel — the "Active Document" editor tab.
+ * 
+ * All actions are tracked strictly by line ID so that dynamic line shifts
+ * (from inserts, deletes, or remote syncs) never misalign edits or conflicts.
  */
 
 interface DocumentPanelProps {
@@ -23,6 +23,8 @@ interface DocumentPanelProps {
   onAddLine: (afterId: string, id: string) => void;
   /** Remove the line `id`. */
   onRemoveLine: (id: string) => void;
+  /** Trigger manual save via Ctrl+S */
+  onSave?: () => void;
 }
 
 const generateId = () =>
@@ -37,6 +39,7 @@ export function DocumentPanel({
   onEditLine,
   onAddLine,
   onRemoveLine,
+  onSave,
 }: DocumentPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showVersions, setShowVersions] = useState(false);
@@ -164,9 +167,6 @@ export function DocumentPanel({
     let currAfterId = target.id;
     let finalId = target.id;
     
-    // Process synchronously instead of staggering with setTimeout. 
-    // This allows React and the WebSocket to batch the operations atomically,
-    // preventing fractured states and ensuring the DOM exists for focusInputById.
     pieces.slice(1).forEach((pieceContent, idx) => {
       const newId = newIds[idx];
       onAddLine(currAfterId, newId);
@@ -182,8 +182,6 @@ export function DocumentPanel({
     if (!hasSelection) return;
     const firstId = selectedLines[0].id;
 
-    // Find the line immediately preceding the selection to focus on
-    // after the selected lines are destroyed.
     const firstIdx = lines.findIndex((l) => l.id === firstId);
     const focusTargetId = firstIdx > 0 ? lines[firstIdx - 1].id : lines[0].id;
 
@@ -212,6 +210,14 @@ export function DocumentPanel({
     const inInput =
       document.activeElement?.tagName === "INPUT" &&
       !!containerRef.current?.contains(document.activeElement);
+
+    // --- Intercept Ctrl+S / Cmd+S ---
+    if (mod && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onSave) onSave();
+      return;
+    }
 
     if (e.key === "Escape" && (hasSelection || inInput)) {
       e.preventDefault();

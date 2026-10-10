@@ -94,7 +94,7 @@ export function LineRow({
 
   return (
     <div
-      className={`flex items-center w-full transition-all py-0 -my-[1px] px-1.5 rounded-sm border ${
+      className={`flex items-center w-full transition-all py-0.5 -my-[1px] px-3 rounded-sm border ${
         hasConflict ? "bg-red-900/30 border-red-500" : ""
       }`}
       style={
@@ -141,7 +141,8 @@ export function LineRow({
         className={`line-input bg-transparent outline-none min-w-0 flex-1 !text-[16px] ${
           disabled ? "opacity-50 cursor-not-allowed" : ""
         }`} 
-        style={{ padding: "0.15rem 0" }}
+        // Added a slight horizontal padding (px-2) to the input itself
+        style={{ padding: "0.25rem 0.5rem" }}
       />
 
       {showVersion && (
