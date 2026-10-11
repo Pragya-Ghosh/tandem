@@ -8,6 +8,15 @@ const PROTOCOL_VERSION = 2;
 function setupWebSocketServer(server) {
   const wss = new WebSocket.Server({ server });
 
+  // A file was deleted via API, boot everyone currently viewing it.
+  DocumentManager.on('deleted', (deletedId) => {
+    wss.clients.forEach((client) => {
+      if (client.fileId === deletedId) {
+        client.close(4404, 'File deleted');
+      }
+    });
+  });
+
   wss.on('connection', (ws, req) => {
     // 1. Extract fileId from URL query params
     let fileId = 'default';
@@ -21,7 +30,15 @@ function setupWebSocketServer(server) {
     // 2. Validate fileId using DocumentManager's security rules
     if (!DocumentManager.isValidFileId(fileId)) {
       console.warn(`[-] Connection rejected: Invalid fileId "${fileId}"`);
-      ws.close(4000, 'Invalid file id');
+      ws.close(1008, 'Invalid file id');
+      return;
+    }
+
+    // NEW CLAUDE LOGIC: Reject if the file doesn't actually exist on disk.
+    // This stops ghost files from being created just by typing a random URL.
+    if (!DocumentManager.fileExists(fileId)) {
+      console.log(`[-] Connection rejected to "${fileId}": no such file`);
+      ws.close(4404, 'File not found');
       return;
     }
 
@@ -46,7 +63,7 @@ function setupWebSocketServer(server) {
       }
 
       try {
-        handleMessage(ws, wss, message, fileId);
+        handleMessage(ws, wss, message, fileId, documentStore);
       } catch (err) {
         console.error('[-] Failed to handle message:', err);
       }
@@ -64,7 +81,7 @@ function setupWebSocketServer(server) {
  * Every operation addresses a line by its id (never by line number).
  * Messages from one client are processed in the order they were sent.
  */
-function handleMessage(ws, wss, message, fileId) {
+function handleMessage(ws, wss, message, fileId, documentStore) {
   const { type, data } = message || {};
   const action = String(type).toUpperCase();
   
@@ -72,8 +89,6 @@ function handleMessage(ws, wss, message, fileId) {
   const EV_EDIT = String(WS_EVENTS.EDIT_LINE || 'EDIT_LINE').toUpperCase();
   const EV_ADD = String(WS_EVENTS.ADD_LINE || 'ADD_LINE').toUpperCase();
   const EV_REMOVE = String(WS_EVENTS.REMOVE_LINE || 'REMOVE_LINE').toUpperCase();
-
-  const documentStore = DocumentManager.getDocument(fileId);
 
   switch (action) {
     // --------------------------------------------------------
@@ -100,13 +115,13 @@ function handleMessage(ws, wss, message, fileId) {
     // LINE EDIT
     // --------------------------------------------------------
     case EV_EDIT: {
-      if (!data || typeof data !== 'object') return;
+      if (!data || typeof data !== 'object') return; // Claude's safeguard against bad payloads
       const { lineId, baseVersion, newContent } = data;
       const result = documentStore.applyEdit(lineId, baseVersion, newContent);
 
       if (result.success) {
         DocumentManager.markDirty(fileId);
-        console.log(`[Edit Accepted] ${fileId} - Line ${result.line.index} updated to v${result.line.version}`);
+        console.log(`[Edit Accepted] ${fileId} Line ${result.line.index} updated to v${result.line.version}`);
         broadcastToRoom(wss, fileId, { type: WS_EVENTS.LINE_UPDATED, data: result.line });
       } else if (result.line) {
         console.log(`[Edit Rejected] Stale write on ${fileId} Line ${result.line.index}`);
@@ -136,7 +151,7 @@ function handleMessage(ws, wss, message, fileId) {
 
       if (result.success) {
         DocumentManager.markDirty(fileId);
-        console.log(`[Line Added] ${fileId} - After line ${afterId}`);
+        console.log(`[Line Added] ${fileId} After line ${afterId}`);
         broadcastToRoom(wss, fileId, { type: WS_EVENTS.LINE_ADDED, data: result.snapshot });
       } else {
         console.log(`[Add Ignored] ${result.reason}`);
@@ -155,7 +170,7 @@ function handleMessage(ws, wss, message, fileId) {
 
       if (result.success) {
         DocumentManager.markDirty(fileId);
-        console.log(`[Line Removed] ${fileId} - Line ${lineId}`);
+        console.log(`[Line Removed] ${fileId} Line ${lineId}`);
         broadcastToRoom(wss, fileId, { type: WS_EVENTS.LINE_REMOVED, data: result.snapshot });
       } else {
         console.log(`[Remove Ignored] ${result.reason}`);
@@ -177,10 +192,10 @@ function sendJson(ws, payload) {
 function sendSnapshot(ws, documentStore, fileId) {
   const status = DocumentManager.getStatus(fileId);
   sendJson(ws, {
-    type: WS_EVENTS.INIT,
+    type: WS_EVENTS.INIT || 'INIT', 
     protocol: PROTOCOL_VERSION,
     data: documentStore.getSnapshot(),
-    status,
+    status, 
   });
 }
 

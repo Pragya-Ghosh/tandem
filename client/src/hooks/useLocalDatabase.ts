@@ -1,26 +1,27 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { ApiError, createFile, deleteFile, listFiles } from "@/lib/api";
 
-/** A file this browser knows about. Only the name lives here; the contents live on the server. */
+/** A file in the list. Names and ids come from the server. */
 export interface LocalFile {
   /** The id used in the URL (?fileId=...) and as the file name on the server. */
   id: string;
-  /** What the user calls it. */
+  /** What the user called it. */
   name: string;
-  /** When it was created or last opened here (ms since epoch). */
+  /** When it was last saved on the server (ms since epoch). */
   updatedAt: number;
 }
 
 const STORAGE_KEY = "tandem_files";
 const EMPTY: LocalFile[] = [];
 
-/** Letters and digits only: safe for the server's file id rule and for URLs. */
-const newId = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-
 /*
- * The list lives in ONE place shared by everything that calls useLocalDatabase(), and every change is
- * written to localStorage immediately. That matters because two components use this list, and because
- * the app navigates with a full page load right after creating a file: a write that waited for React
- * to re-render could be lost, and a second copy of the list would overwrite the first.
+ * THE SERVER IS THE SOURCE OF TRUTH for which files exist and what they are called. The list kept
+ * here (and in localStorage) is only a copy, so the screen has something to show before the server
+ * answers and when it can't be reached. Every refresh replaces the copy with the server's list, so
+ * a file can't show up twice under two names, and a deleted file can't come back.
+ *
+ * One shared copy serves every component that calls useLocalDatabase(); changes are written to
+ * localStorage immediately.
  */
 let cache: LocalFile[] | null = null;
 const listeners = new Set<() => void>();
@@ -70,27 +71,61 @@ function subscribe(listener: () => void) {
 
 const subscribeNever = () => () => {};
 
-/** The list of files shown on the "choose a file" screen, remembered in localStorage. */
+let refreshing: Promise<void> | null = null;
+
+/** Replaces the list with the server's. If the server can't be reached, the saved copy stays. */
+function refreshFiles(): Promise<void> {
+  if (refreshing) return refreshing;
+  refreshing = listFiles()
+    .then((serverFiles) => {
+      if (JSON.stringify(serverFiles) !== JSON.stringify(getFiles())) setFiles(serverFiles);
+    })
+    .catch((err) => console.warn("Could not refresh the file list:", err))
+    .finally(() => {
+      refreshing = null;
+    });
+  return refreshing;
+}
+
+/** The list of files for the "choose a file" screens. */
 export function useLocalDatabase() {
-  // On the server (and while hydrating) the list is empty; the browser's real list follows.
+  // On the server (and while hydrating) the list is empty; the browser's saved copy follows.
   const files = useSyncExternalStore(subscribe, getFiles, () => EMPTY);
-  /** False until the browser's list is available, so the UI doesn't flash "No files". */
+  /** False until the browser's copy is available, so the UI doesn't flash "No files". */
   const loaded = useSyncExternalStore(subscribeNever, () => true, () => false);
 
-  /** Adds a file to the list. Pass `id` to remember an existing file (e.g. from a shared link). */
-  const addFile = useCallback((name: string, id: string = newId()): LocalFile => {
-    const file: LocalFile = { id, name, updatedAt: Date.now() };
-    const current = getFiles();
-    if (!current.some((f) => f.id === id)) setFiles([file, ...current]);
+  // Ask the server for the real list now, and again whenever the user comes back to this window.
+  useEffect(() => {
+    refreshFiles();
+    const onFocus = () => {
+      refreshFiles();
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
+
+  /**
+   * Creates a file on the server and adds it to the list. If a file with that name already
+   * exists you get that one back. Throws (with a readable message) if the server says no.
+   */
+  const addFile = useCallback(async (name: string): Promise<LocalFile> => {
+    const file = await createFile(name);
+    setFiles([file, ...getFiles().filter((f) => f.id !== file.id)]);
     return file;
   }, []);
 
-  /** Removes a file from THIS list only. Its contents stay on the server. */
-  const removeFile = useCallback((id: string) => {
+  /** Deletes a file on the server (for everyone) and removes it from the list. */
+  const removeFile = useCallback(async (id: string): Promise<void> => {
+    try {
+      await deleteFile(id);
+    } catch (err) {
+      // Already gone on the server: just drop it from the list.
+      if (!(err instanceof ApiError && err.status === 404)) throw err;
+    }
     setFiles(getFiles().filter((f) => f.id !== id));
   }, []);
 
-  /** Marks a file as just opened. */
+  /** Marks a file as just opened (this browser's list only). */
   const touchFile = useCallback((id: string) => {
     setFiles(getFiles().map((f) => (f.id === id ? { ...f, updatedAt: Date.now() } : f)));
   }, []);

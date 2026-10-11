@@ -19,7 +19,8 @@ function TandemEditorContent({ fileId }: { fileId: string | null }) {
 
   const [tab, setTab] = useState<Tab>("general");
   const { files, loaded, addFile, removeFile } = useLocalDatabase();
-  const { lines, connected, conflictId, saveStatus, editLine, addLine, removeLine, saveDocument } =
+  
+  const { lines, connected, conflictId, fileMissing, saveStatus, editLine, addLine, removeLine, saveDocument } =
     useTandemSync(fileId);
 
   // Lives here, not in OverviewPanel: that panel disappears whenever you switch tabs, which would
@@ -29,10 +30,10 @@ function TandemEditorContent({ fileId }: { fileId: string | null }) {
   const activeFile = files.find((f) => f.id === fileId);
   const fileName = activeFile?.name || fileId;
 
-  // A shared link can point at a file this browser has never seen: remember it.
+  // The server says this file doesn't exist (it was deleted, or the link is old): back to the picker.
   useEffect(() => {
-    if (loaded && fileId && !activeFile) addFile(fileId, fileId);
-  }, [loaded, fileId, activeFile, addFile]);
+    if (fileMissing) router.replace("/");
+  }, [fileMissing, router]);
 
   useHotkeys({
     F2: () => setTab((t) => (t === "general" ? "editor" : "general")),
@@ -58,19 +59,14 @@ function TandemEditorContent({ fileId }: { fileId: string | null }) {
     router.push(`/?fileId=${encodeURIComponent(id)}`);
   };
 
-  const handleCreate = (name: string) => {
-    const safeId =
-      name
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]/g, "-")
-        .replace(/-+/g, "-")
-        .slice(0, 50) +
-      "-" +
-      Math.random().toString(36).slice(2, 6);
-
-    // Saved to localStorage the moment addFile returns, so the new file is already in the list when we navigate.
-    addFile(name, safeId);
-    router.push(`/?fileId=${encodeURIComponent(safeId)}`);
+  // Creates the file on the server and waits for the clean ID before navigating.
+  const handleCreate = async (name: string) => {
+    try {
+      const file = await addFile(name);
+      router.push(`/?fileId=${encodeURIComponent(file.id)}`);
+    } catch (err: any) {
+      alert(err.message || "Failed to create file.");
+    }
   };
 
   // If no fileId is selected, show the FilePicker screen
@@ -83,7 +79,6 @@ function TandemEditorContent({ fileId }: { fileId: string | null }) {
           onOpen={handleOpen}
           onCreate={handleCreate}
           onRemove={removeFile}
-          onDiscoverServerFile={addFile}
         />
       </main>
     );

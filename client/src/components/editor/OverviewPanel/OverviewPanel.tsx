@@ -14,8 +14,8 @@ interface OverviewPanelProps {
   recentActivities: ActivityLog[];
   files: LocalFile[];
   loaded: boolean;
-  onCreateFile: (name: string) => void;
-  onRemoveFile: (id: string) => void;
+  onCreateFile: (name: string) => Promise<void>;
+  onRemoveFile: (id: string) => Promise<void>;
 }
 
 export function OverviewPanel({ 

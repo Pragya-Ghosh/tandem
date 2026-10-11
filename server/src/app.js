@@ -1,45 +1,67 @@
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+
+const DocumentManager = require('../db/DocumentManager');
 
 function createApp() {
   const app = express();
+  
   app.use(cors());
+  
+  // required to read the JSON body in POST requests
+  app.use(express.json());
 
   // Healthcheck route
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // API to list all saved files on the server
+  // 1. GET: List all files
   app.get('/api/files', (req, res) => {
-    // Assuming your data folder is at the root level like: /db/data 
-    // Since app.js is in /src, we go up one level with '..'
-    const dataDir = path.join(__dirname, '../db/data'); 
-    
-    if (!fs.existsSync(dataDir)) {
-      return res.json([]);
+    try {
+      const files = DocumentManager.listFiles();
+      res.json(files);
+    } catch (err) {
+      console.error('[API] Failed to list files:', err);
+      res.status(500).json({ error: 'Could not list files.' });
     }
+  });
 
-    fs.readdir(dataDir, (err, files) => {
-      if (err) return res.status(500).json([]);
+  // 2. POST: Create a new file
+  app.post('/api/files', (req, res) => {
+    try {
+      if (!req.body || !req.body.name) {
+        return res.status(400).json({ error: 'A file name is required.' });
+      }
+
+      const result = DocumentManager.createFile(req.body.name);
+
+      if (result.success) {
+        res.json(result.file);
+      } else {
+        res.status(result.status || 400).json({ error: result.reason });
+      }
+    } catch (err) {
+      console.error('[API] Failed to create file:', err);
+      res.status(500).json({ error: 'Could not create file.' });
+    }
+  });
+
+  // 3. DELETE: Remove a file
+  app.delete('/api/files/:id', (req, res) => {
+    try {
+      const result = DocumentManager.deleteFile(req.params.id);
       
-      const fileList = files
-        .filter(f => !f.startsWith('.')) // Ignore .gitkeep or hidden files
-        .map(f => {
-          const id = path.parse(f).name; 
-          return {
-            id: id,
-            name: id,
-            updatedAt: fs.statSync(path.join(dataDir, f)).mtimeMs
-          };
-        })
-        .sort((a, b) => b.updatedAt - a.updatedAt); // Newest files first
-        
-      res.json(fileList);
-    });
+      if (result.success) {
+        res.status(204).send(); // 204 No Content = Success
+      } else {
+        res.status(result.status || 400).json({ error: result.reason });
+      }
+    } catch (err) {
+      console.error('[API] Failed to delete file:', err);
+      res.status(500).json({ error: 'Could not delete file.' });
+    }
   });
 
   const server = http.createServer(app);

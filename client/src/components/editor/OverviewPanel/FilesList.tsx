@@ -9,47 +9,62 @@ import type { LocalFile } from "@/hooks/useLocalDatabase";
 interface FilesListProps {
   files: LocalFile[];
   loaded: boolean;
-  onCreate: (name: string) => void;
-  onRemove: (id: string) => void;
+  /** Create a file with this name and open it. Rejects with a readable message if that fails. */
+  onCreate: (name: string) => Promise<void>;
+  /** Delete a file on the server. Rejects with a readable message if that fails. */
+  onRemove: (id: string) => Promise<void>;
 }
 
 export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps) {
   const [newFileName, setNewFileName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleCreateSubmit = (e: React.FormEvent) => {
+  const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = newFileName.trim();
-    if (!trimmed) return;
-    onCreate(trimmed);
-    setNewFileName("");
+    if (!trimmed || busy) return;
+
+    setBusy(true);
+    setError(null);
+    try {
+      await onCreate(trimmed);
+      setNewFileName("");
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "Could not create the file.");
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const handleRemoveClick = (e: React.MouseEvent, id: string, name: string) => {
+  const handleRemoveClick = async (e: React.MouseEvent, id: string, name: string) => {
     e.preventDefault(); 
     e.stopPropagation();
 
-    if (window.confirm(`Remove "${name}" from this list?\nIts contents stay on the server.`)) {
-      const currentFileId = searchParams.get("fileId");
-      
+    // Updated warning to reflect server-side deletion
+    if (!window.confirm(`Delete "${name}" for everyone?\nThis permanently deletes it from the server.`)) {
+      return;
+    }
+    
+    setError(null);
+    const currentFileId = searchParams.get("fileId");
+
+    try {
+      // If we are deleting the currently open file, navigate away immediately
       if (currentFileId === id) {
         const remainingFiles = files.filter((f) => f.id !== id);
         const nextUrl = remainingFiles.length > 0 
           ? `/?fileId=${encodeURIComponent(remainingFiles[0].id)}` 
           : "/";
-
         router.push(nextUrl);
-
-        // Delay deletion so the URL changes first
-        setTimeout(() => {
-          onRemove(id);
-        }, 50);
-        
-      } else {
-        onRemove(id);
       }
+      
+      await onRemove(id);
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "Could not delete the file.");
     }
   };
 
@@ -62,16 +77,19 @@ export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps)
             value={newFileName}
             onChange={(e) => setNewFileName(e.target.value)}
             placeholder="Enter New File Name"
-            className="flex-1 bg-transparent border border-zinc-700/50 rounded-sm px-2 py-1 text-sm outline-none focus:border-teal-500 transition-colors"
+            className="flex-1 bg-transparent border border-zinc-700/50 rounded-sm px-2 py-1 text-sm outline-none focus:border-teal-500 transition-colors disabled:opacity-50"
+            disabled={busy}
           />
           <button
             type="submit"
-            disabled={!newFileName.trim()}
+            disabled={!newFileName.trim() || busy}
             className="border border-zinc-700/50 px-3 py-1 rounded-sm text-sm hover:bg-zinc-800 disabled:opacity-50 transition-colors cursor-pointer"
           >
-            Create
+            {busy ? "..." : "Create"}
           </button>
         </form>
+
+        {error && <p role="alert" className="text-red-400 text-sm animate-fade-in">{error}</p>}
 
         <div className="max-h-72 overflow-y-auto overscroll-contain pr-2">
           {!loaded ? (
@@ -100,7 +118,7 @@ export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps)
                       onClick={(e) => handleRemoveClick(e, file.id, file.name)}
                       className="text-red-500 hover:text-red-400 text-xs cursor-pointer transition-opacity sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
                     >
-                      Remove
+                      Delete
                     </button>
                   </div>
                 </div>

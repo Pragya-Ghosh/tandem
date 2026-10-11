@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CONFLICT_FLASH_MS } from "@/lib/config";
+import { CONFLICT_FLASH_MS, WS_URL } from "@/lib/config";
 import type { ClientMessage, Line, ServerMessage } from "@/types/tandem";
 
 /** What the header shows about saving: a short text and how to colour it. */
@@ -22,6 +22,8 @@ interface TandemSocket {
   lines: Line[];
   connected: boolean;
   conflictId: string | null;
+  /** The server says this file doesn't exist (deleted, or an old link). It will not reconnect. */
+  fileMissing: boolean;
   editLine: (id: string, content: string) => void;
   addLine: (afterId: string, id: string) => void;
   removeLine: (id: string) => void;
@@ -53,7 +55,7 @@ const emptyOutbox = (): Outbox => ({
   removes: new Map(),
 });
 
-/** CORE FIX: Helper to guarantee every line object always has a valid timestamp */
+/** Helper to guarantee every line object always has a valid timestamp */
 const sanitizeLine = (l: Partial<Line>, fallbackTime = Date.now()): Line => {
   const parsedTs = Number(l.timestamp);
   const validTimestamp = (!parsedTs || isNaN(parsedTs) || parsedTs <= 0) ? fallbackTime : parsedTs;
@@ -97,7 +99,7 @@ function rebase(box: Outbox): Line[] {
     }
   };
 
-  // CORE FIX: Sanitize all server lines on entry to rebase
+  // Sanitize all server lines on entry to rebase
   box.server.forEach((l) => {
     out.push(sanitizeLine(l));
     placeAddsAfter(l.id);
@@ -127,10 +129,18 @@ function rebase(box: Outbox): Line[] {
   return out.map((l, i) => ({ ...l, index: i + 1 }));
 }
 
+/**
+ * Connects to the server for ONE file and keeps `lines` in step with it.
+ * Pass `null` while no file is selected: nothing connects and `lines` stays empty.
+ * Pass a different file id to switch files: the previous file's state is discarded.
+ * The server address comes from WS_URL (NEXT_PUBLIC_WS_URL), the same one the UI displays.
+ */
 export function useTandemSync(fileId: string | null): TandemSocket {
+  const url = fileId ? `${WS_URL}?fileId=${encodeURIComponent(fileId)}` : null;
   const [lines, setLines] = useState<Line[]>([]);
   const [connected, setConnected] = useState(false);
   const [conflictId, setConflictId] = useState<string | null>(null);
+  const [fileMissing, setFileMissing] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>(INITIAL_SAVE_STATE);
 
   const socketRef = useRef<WebSocket | null>(null);
@@ -184,6 +194,7 @@ export function useTandemSync(fileId: string | null): TandemSocket {
     linesRef.current = [];
     setLines([]);
     setConflictId(null);
+    setFileMissing(false);
     clearTypingTimers();
     clearSaveRequest();
     setSaveState(INITIAL_SAVE_STATE);
@@ -292,12 +303,7 @@ export function useTandemSync(fileId: string | null): TandemSocket {
     setConnected(false);
 
     // No file selected: stay disconnected.
-    if (!fileId) return;
-
-    // Safely access window inside useEffect (client-only)
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = process.env.NODE_ENV === "production" ? window.location.host : "localhost:5000";
-    const wsUrl = `${protocol}//${host}?fileId=${encodeURIComponent(fileId)}`;
+    if (!url) return;
 
     let socket: WebSocket | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout>;
@@ -306,14 +312,14 @@ export function useTandemSync(fileId: string | null): TandemSocket {
     const connect = () => {
       if (!isMounted) return;
 
-      socket = new WebSocket(wsUrl); // Use wsUrl here
+      socket = new WebSocket(url);
       socketRef.current = socket;
 
       socket.onopen = () => {
         if (socketRef.current === socket) setConnected(true);
       };
 
-      socket.onclose = () => {
+      socket.onclose = (event) => {
         if (socketRef.current !== socket) return;
         setConnected(false);
 
@@ -328,6 +334,13 @@ export function useTandemSync(fileId: string | null): TandemSocket {
         clearSaveRequest();
         setSaveState((s) => (s.status === "saving" ? { ...s, status: "idle" } : s));
         recompute();
+
+        // 4404 = no such file (deleted, or a stale link); 1008 = not a valid file id.
+        // Retrying can't help, so stop instead of reconnecting forever.
+        if (event.code === 4404 || event.code === 1008) {
+          setFileMissing(true);
+          return;
+        }
 
         reconnectTimer = setTimeout(connect, 2000);
       };
@@ -412,22 +425,29 @@ export function useTandemSync(fileId: string | null): TandemSocket {
           }
 
           case "save_ack": {
-            // Sent to everyone on the file, so every client's indicator updates together.
-            // Anything we typed after pressing Save is still on its way, so it is still unsaved.
             clearSaveRequest();
             const stillPending =
               box.inFlight.size + box.queued.size + box.adds.size + box.removes.size > 0;
-            // Handle optional payload gracefully
-            const newSavedAt = ('data' in message && message.data?.savedAt) ? message.data.savedAt : Date.now();
-            setSaveState({ status: "idle", dirty: stillPending, savedAt: newSavedAt });
+            
+            // Safe fallback for savedAt
+            const ackSavedAt = ('data' in message && message.data?.savedAt) 
+              ? message.data.savedAt 
+              : Date.now();
+
+            setSaveState({ status: "idle", dirty: stillPending, savedAt: ackSavedAt });
             break;
           }
 
-          case "save_error":
-            console.warn('data' in message && message.data?.reason ? message.data.reason : "Save failed");
+          case "save_error": {
+            const errorReason = ('data' in message && message.data?.reason) 
+              ? message.data.reason 
+              : "Save failed on server";
+            
+            console.warn(errorReason);
             clearSaveRequest();
             setSaveState((s) => ({ ...s, status: "error" }));
             break;
+          }
         }
       };
     };
@@ -455,7 +475,7 @@ export function useTandemSync(fileId: string | null): TandemSocket {
       clearSaveRequest();
       if (socket) socket.close();
     };
-  }, [fileId, reconcile, flash, recompute, resetDocument, clearTypingTimers, clearSaveRequest, markDirty]);
+  }, [url, reconcile, flash, recompute, resetDocument, clearTypingTimers, clearSaveRequest, markDirty]);
 
   const editLine = useCallback(
     (id: string, content: string) => {
@@ -546,5 +566,5 @@ export function useTandemSync(fileId: string | null): TandemSocket {
     return { text: "not saved yet", tone: "dim" };
   }, [saveState]);
 
-  return { lines, connected, conflictId, editLine, addLine, removeLine, saveDocument, saveStatus };
+  return { lines, connected, conflictId, fileMissing, editLine, addLine, removeLine, saveDocument, saveStatus };
 }
