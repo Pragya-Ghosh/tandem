@@ -48,7 +48,7 @@ export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps)
           </button>
         </form>
 
-        <div className="max-h-[min(20rem,40vh)] overflow-y-auto overscroll-contain pr-2">
+        <div className="max-h-70 overflow-y-auto overscroll-contain pr-2">
           {!loaded ? (
             <p className="fg-dim">Loading…</p>
           ) : files.length === 0 ? (
