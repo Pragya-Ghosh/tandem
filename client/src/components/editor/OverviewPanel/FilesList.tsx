@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import { Box } from "@/components/ui";
 import type { LocalFile } from "@/hooks/useLocalDatabase";
 
@@ -58,9 +59,13 @@ export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps)
                 <div key={file.id} className="flex w-full justify-between items-center group">
                   <div className="flex items-center gap-3">
                     <span className="fg-teal opacity-70">📄</span>
-                    <a href={`/?fileId=${encodeURIComponent(file.id)}`} className="hover:text-teal-400 transition-colors">
+                    {/* <Link> switches files without reloading the page. */}
+                    <Link
+                      href={`/?fileId=${encodeURIComponent(file.id)}`}
+                      className="hover:text-teal-400 transition-colors"
+                    >
                       {file.name}
-                    </a>
+                    </Link>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-xs font-mono fg-dim">

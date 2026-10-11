@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DocumentPanel } from "./DocumentPanel";
 import { OverviewPanel } from "./OverviewPanel/OverviewPanel";
 import { KeyHints } from "./KeyHints";
@@ -14,9 +14,8 @@ import { useLocalDatabase } from "@/hooks/useLocalDatabase";
 import { useRecentActivity } from "@/hooks/useRecentActivity";
 import type { Tab } from "@/types/tandem";
 
-function TandemEditorContent() {
-  const searchParams = useSearchParams();
-  const fileId = searchParams.get("fileId");
+function TandemEditorContent({ fileId }: { fileId: string | null }) {
+  const router = useRouter();
 
   const [tab, setTab] = useState<Tab>("general");
   const { files, loaded, addFile, removeFile } = useLocalDatabase();
@@ -54,8 +53,9 @@ function TandemEditorContent() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [fileId, saveDocument]);
 
+  // Client-side navigation: the page is not reloaded, and the browser's Back button returns to the previous screen.
   const handleOpen = (id: string) => {
-    window.location.href = `/?fileId=${encodeURIComponent(id)}`;
+    router.push(`/?fileId=${encodeURIComponent(id)}`);
   };
 
   const handleCreate = (name: string) => {
@@ -68,9 +68,9 @@ function TandemEditorContent() {
       "-" +
       Math.random().toString(36).slice(2, 6);
 
-    // Saved to localStorage the moment addFile returns, so it's safe to leave the page next.
+    // Saved to localStorage the moment addFile returns, so the new file is already in the list when we navigate.
     addFile(name, safeId);
-    window.location.href = `/?fileId=${encodeURIComponent(safeId)}`;
+    router.push(`/?fileId=${encodeURIComponent(safeId)}`);
   };
 
   // If no fileId is selected, show the FilePicker screen
@@ -131,12 +131,22 @@ function TandemEditorContent() {
   );
 }
 
+/**
+ * Reads which file is open from the URL and gives each file its own fresh editor (`key`), so moving
+ * to another file resets the tab, the connection and the activity list, just as a page reload did,
+ * without reloading the page.
+ */
+function TandemEditorRoot() {
+  const fileId = useSearchParams().get("fileId");
+  return <TandemEditorContent key={fileId ?? "none"} fileId={fileId} />;
+}
+
 export default function TandemEditor() {
   return (
     <Suspense
       fallback={<div className="bg-page h-dvh w-full flex items-center justify-center fg-dim">Loading Tandem…</div>}
     >
-      <TandemEditorContent />
+      <TandemEditorRoot />
     </Suspense>
   );
 }
