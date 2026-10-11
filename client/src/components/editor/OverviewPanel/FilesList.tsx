@@ -1,5 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Box } from "@/components/ui";
 import type { LocalFile } from "@/hooks/useLocalDatabase";
 
@@ -12,19 +15,41 @@ interface FilesListProps {
 
 export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps) {
   const [newFileName, setNewFileName] = useState("");
+  
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = newFileName.trim();
     if (!trimmed) return;
-
     onCreate(trimmed);
     setNewFileName("");
   };
 
-  const handleRemoveClick = (id: string, name: string) => {
+  const handleRemoveClick = (e: React.MouseEvent, id: string, name: string) => {
+    e.preventDefault(); 
+    e.stopPropagation();
+
     if (window.confirm(`Remove "${name}" from this list?\nIts contents stay on the server.`)) {
-      onRemove(id);
+      const currentFileId = searchParams.get("fileId");
+      
+      if (currentFileId === id) {
+        const remainingFiles = files.filter((f) => f.id !== id);
+        const nextUrl = remainingFiles.length > 0 
+          ? `/?fileId=${encodeURIComponent(remainingFiles[0].id)}` 
+          : "/";
+
+        router.push(nextUrl);
+
+        // Delay deletion so the URL changes first
+        setTimeout(() => {
+          onRemove(id);
+        }, 50);
+        
+      } else {
+        onRemove(id);
+      }
     }
   };
 
@@ -48,7 +73,7 @@ export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps)
           </button>
         </form>
 
-        <div className="max-h-70 overflow-y-auto overscroll-contain pr-2">
+        <div className="max-h-72 overflow-y-auto overscroll-contain pr-2">
           {!loaded ? (
             <p className="fg-dim">Loading…</p>
           ) : files.length === 0 ? (
@@ -59,7 +84,6 @@ export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps)
                 <div key={file.id} className="flex w-full justify-between items-center group">
                   <div className="flex items-center gap-3">
                     <span className="fg-teal opacity-70">📄</span>
-                    {/* <Link> switches files without reloading the page. */}
                     <Link
                       href={`/?fileId=${encodeURIComponent(file.id)}`}
                       className="hover:text-teal-400 transition-colors"
@@ -73,7 +97,7 @@ export function FilesList({ files, loaded, onCreate, onRemove }: FilesListProps)
                     </span>
                     <button
                       type="button"
-                      onClick={() => handleRemoveClick(file.id, file.name)}
+                      onClick={(e) => handleRemoveClick(e, file.id, file.name)}
                       className="text-red-500 hover:text-red-400 text-xs cursor-pointer transition-opacity sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
                     >
                       Remove
