@@ -365,7 +365,7 @@ export function useTandemSync(fileId: string | null): TandemSocket {
           case "init":
           case "line_added":
           case "line_removed":
-            // CORE FIX: Sanitize incoming server arrays instantly
+            // Sanitize incoming server arrays instantly
             box.server = Array.isArray(message.data)
               ? message.data.map((l) => sanitizeLine(l))
               : [];
@@ -387,7 +387,7 @@ export function useTandemSync(fileId: string | null): TandemSocket {
             break;
 
           case "line_updated": {
-            // CORE FIX: Sanitize single updated line instantly
+            // Sanitize single updated line instantly
             const updated = sanitizeLine(message.data);
             box.server = box.server.map((l) =>
               l.id === updated.id && updated.version >= l.version ? updated : l

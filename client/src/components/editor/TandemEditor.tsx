@@ -23,8 +23,6 @@ function TandemEditorContent({ fileId }: { fileId: string | null }) {
   const { lines, connected, conflictId, fileMissing, saveStatus, editLine, addLine, removeLine, saveDocument } =
     useTandemSync(fileId);
 
-  // Lives here, not in OverviewPanel: that panel disappears whenever you switch tabs, which would
-  // wipe the history each time.
   const recentActivities = useRecentActivity(lines, 7);
 
   const activeFile = files.find((f) => f.id === fileId);

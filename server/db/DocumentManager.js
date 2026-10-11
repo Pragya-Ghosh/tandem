@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { EventEmitter } = require('events');
 
-// Kept your original import path for DocumentStore
 const DocumentStore = require('../src/services/documentStore');
 
 const DATA_DIR = path.join(__dirname, 'data');
@@ -207,7 +206,7 @@ class DocumentManager extends EventEmitter {
     this._entry(fileId).dirty = true;
   }
 
-  /** Writes the document to disk (manual save). Returns { success, savedAt } or { success: false, reason }. */
+  /** Writes the document to disk (manual save). Returns { success, savedAt } or { success: false, reason } */
   saveDocument(fileId) {
     try {
       const entry = this._entry(fileId);

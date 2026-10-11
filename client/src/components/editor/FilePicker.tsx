@@ -46,7 +46,7 @@ export function FilePicker({ files, loaded, onOpen, onCreate, onRemove }: FilePi
   };
 
   const confirmRemove = async (file: LocalFile) => {
-    // Updated warning to reflect that this is now a global server deletion!
+    // Updated warning to reflect that this is now a global server deletion
     if (!window.confirm(`Delete "${file.name}" for everyone?\nThis permanently deletes it from the server.`)) {
       return;
     }

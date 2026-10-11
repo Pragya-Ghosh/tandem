@@ -17,7 +17,7 @@ function createApp() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // 1. GET: List all files
+  // GET: List all files
   app.get('/api/files', (req, res) => {
     try {
       const files = DocumentManager.listFiles();
@@ -28,7 +28,7 @@ function createApp() {
     }
   });
 
-  // 2. POST: Create a new file
+  // POST: Create a new file
   app.post('/api/files', (req, res) => {
     try {
       if (!req.body || !req.body.name) {
@@ -48,7 +48,7 @@ function createApp() {
     }
   });
 
-  // 3. DELETE: Remove a file
+  // DELETE: Remove a file
   app.delete('/api/files/:id', (req, res) => {
     try {
       const result = DocumentManager.deleteFile(req.params.id);

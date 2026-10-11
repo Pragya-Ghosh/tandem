@@ -107,7 +107,7 @@ class DocumentStore {
 
     this.lines.splice(insertIdx, 0, {
       id: clientId,
-      index: 0, // fixed by the renumber below
+      index: 0, 
       version: 1,
       content: "",
       timestamp: Date.now(), // Authoritative time of creation

@@ -26,18 +26,49 @@ Tandem is a real-time, low-latency collaborative text engine designed specifical
 ## Tech Stack & Architecture
 Tandem utilizes a modern web-based Client-Server architecture to ensure sub-millisecond propagation of edits and permanent data durability.
 
-* **Frontend:** Next.js and React to manage the editor's UI state and render the text array.
-* **Backend:** A Node.js server that manages WebSocket connections and keeps the document synchronized across all users.
-* **Database Layer:** A persistent relational database (PostgreSQL via Supabase) to store the authoritative code state and safely commit concurrent edits.
-* **Transport Layer:** Native WebSockets for persistent, bi-directional, full-duplex communication.
+- **Frontend:** Next.js and React (App Router) to manage the editor's UI state, file routing (`?fileId=...`), and render the line array.
+- **Backend:** A Node.js and Express server handling HTTP file CRUD operations alongside real-time WebSocket communication.
+- **Persistence Layer:** A server-side file manager (`DocumentManager`) maintaining atomic, authoritative code states on disk (`server/db/data/`).
+- **Transport Layer:** Native WebSockets for persistent, bi-directional, full-duplex communication keyed by file rooms.
+
+## Getting Started & Build Instructions
+
+To run Tandem locally, you will need two separate terminal windows (one for the backend server and one for the frontend client).
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+
+### 1. Clone the Repository & Install Dependencies
+```bash
+git clone https://github.com/Pragya-Ghosh/tandem.git
+cd tandem
+npm install
+```
+
+### 2. Run the Backend Server
+The backend handles Express HTTP routes and WebSocket connections on port 5000.
+```bash
+cd server
+node index.js
+```
+
+### 3. Run the Frontend Client
+Open a second terminal window in the root directory and start the Next.js development server:
+```bash
+cd client
+npm run dev
+```
+
+Open your browser and navigate to http://localhost:3000 to start collaborating!
 
 ## Project Scope
 
-* **Persistent Database:** The code is permanently saved in a database. When users connect, they load the latest saved version, and all new edits are continuously saved back so nothing is lost.
-* **Central WebSocket Server:** A Node.js server that keeps an open, two-way connection with multiple users at the exact same time.
-* **Real-Time Live Editing:** As soon as one person types, their keystrokes instantly appear on everyone else's screen.
-* **Line-Level Concurrency Control (OCC):** A system that tracks edits line-by-line. If two people try to rewrite the exact same line at the exact same millisecond, the server safely rejects the slower edit to prevent the code from getting corrupted.
-* **Offline Recovery:** If a user's Wi-Fi drops and they reconnect, the system automatically pulls the latest updated code from the server to get them perfectly back in sync.
+- **Persistent Storage:** Code files are permanently saved on the server. When users connect, they load the latest saved snapshot, and modifications are tracked via dirty-state indicators.
+- **Central WebSocket Server:** A Node.js server maintaining open, concurrent two-way rooms segregated by unique file IDs.
+- **Real-Time Live Editing:** Instant keystroke propagation across all connected clients viewing the same file room.
+- **Line-Level Concurrency Control (OCC):** Version-tracked line edits that protect against the "Lost Update" anomaly without locking files.
+- **Robust Disconnect & Deletion Handling:** Automated reconnection with state recovery, plus instant anti-ghost protection (`4404` close code handling) that safely boots users out if a file is deleted mid-session.
 
 ## Concurrency Strategy: Line-Level Optimistic Concurrency Control (OCC)
 Tandem closely mirrors the conflict-resolution philosophy of Git. **Optimistic Concurrency Control (OCC)** operates on the assumption that true concurrent conflicts are rare. 
@@ -46,16 +77,14 @@ Instead of placing a restrictive "lock" on a file or line the moment someone sta
 
 If the server detects that the line's version has changed since the user began typing (meaning someone else beat them to it), the server explicitly rejects the "stale" edit. This guarantees that code is never silently overwritten, protecting the integrity of the file without sacrificing real-time speed.
 
-* **Versioned State:** The document is not treated as a single massive string, but as an array of discrete lines. The server maintains a strict, independent version integer for every single line.
-* **Rejection Mechanism:** When a client submits an edit to a line, the payload must include the `base_version` they are editing from. If the server's current version for that line is higher, it means another client has already modified it. The server explicitly rejects the stale edit to prevent the "Lost Update" anomaly.
-* **Client-Side Resolution:** Upon rejection, the server pushes the latest authoritative state to the lagging client. The client's UI flags the collision, forcing the developer to explicitly review the updated logic before submitting a new edit.
+- **Versioned State:** The document is treated as an array of discrete lines. The server maintains a strict, independent version integer for every single line.
+- **Rejection Mechanism:** When a client submits an edit to a line, the payload must include the `baseVersion` they are editing from. If the server's current version for that line is higher, it means another client has already modified it. The server explicitly rejects the stale edit.
+- **Client-Side Resolution:** Upon rejection, the server pushes the latest authoritative state. The client's UI flashes red, overwriting the stale input with the correct logic.
 
-## Disconnect Handling
-The system is designed to be robust against sudden network failures, ensuring the editor remains stable if a developer drops offline.
-
-* **Connection State:** If a client drops due to packet loss or Wi-Fi failure, the UI locks the editor to prevent the user from making un-syncable offline edits.
-* **Reconnection Sync:** Upon reconnecting, the client fires a `sync_state` request. The server responds with the complete, latest array of versioned lines, immediately overwriting any stale data on the client side and ensuring they resume with a perfectly consistent view of the file.
-
+## Save & Persistence Strategy
+Tandem implements a multi-stage save pipeline to balance fluid typing with absolute data integrity:
+- **Debounced Transmission:** Keystrokes are debounced (`600ms`) and managed through an outbox rebase system on the client side.
+- **Idle-Aware Saving (`Ctrl + S`):** When manual save is triggered, pending local edits are flushed immediately. The server commit is delayed until all preceding client edits have successfully landed, ensuring the file written to disk is complete and up-to-date.
 
 ## AI Usage Disclosure
 AI has been used to help figure out the basic architecture of this project. Moving forward, AI will also be used to assist with building and styling the web-based User Interface (Next.js and React components). The core backend logic, state management, and concurrency engine will be developed independently.
@@ -64,8 +93,7 @@ AI has been used to help figure out the basic architecture of this project. Movi
 
 The following diagrams illustrate how the WebSocket server handles real-time edits and strictly resolves concurrent conflicts using Line-Level OCC.
 
-### Scenario A: Successful Edit 
-Client A edits a line, the version matches the server's state, and the edit is successfully broadcasted to all other connected clients.
+### Scenario A: Successful Edit
 ```
 [Client A]                               [Node.js Server]                              [Client B]
     |                               (Holds Line 5, v10: "let x = 1;")                      |

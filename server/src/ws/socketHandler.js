@@ -34,7 +34,7 @@ function setupWebSocketServer(server) {
       return;
     }
 
-    // NEW CLAUDE LOGIC: Reject if the file doesn't actually exist on disk.
+    // Reject if the file doesn't actually exist on disk.
     // This stops ghost files from being created just by typing a random URL.
     if (!DocumentManager.fileExists(fileId)) {
       console.log(`[-] Connection rejected to "${fileId}": no such file`);
@@ -115,7 +115,7 @@ function handleMessage(ws, wss, message, fileId, documentStore) {
     // LINE EDIT
     // --------------------------------------------------------
     case EV_EDIT: {
-      if (!data || typeof data !== 'object') return; // Claude's safeguard against bad payloads
+      if (!data || typeof data !== 'object') return; // safeguard against bad payloads
       const { lineId, baseVersion, newContent } = data;
       const result = documentStore.applyEdit(lineId, baseVersion, newContent);
 

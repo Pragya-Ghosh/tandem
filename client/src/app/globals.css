@@ -16,7 +16,7 @@ body {
   font-family: 'Courier New', Courier, monospace;
 }
 
-/* Custom scrollbar to maintain the retro terminal feel */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
