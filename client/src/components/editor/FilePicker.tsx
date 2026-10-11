@@ -12,22 +12,46 @@ interface FilePickerProps {
   /** Create a file with this name and open it. */
   onCreate: (name: string) => void;
   onRemove: (id: string) => void;
+  /** Fires when a file is discovered on the server so it can be added to the local list */
+  onDiscoverServerFile?: (name: string, id: string) => void;
 }
 
-/**
- * Shown while no file is selected. The app connects to the server immediately,
- * allowing you to pick an existing file or create a new one.
- */
-export function FilePicker({ files, loaded, onOpen, onCreate, onRemove }: FilePickerProps) {
+export function FilePicker({ files, loaded, onOpen, onCreate, onRemove, onDiscoverServerFile }: FilePickerProps) {
   const [name, setName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Automatically focus the input box on initial load/reload
+  // Focus input and fetch server files on load
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [loaded]);
+
+    const fetchServerFiles = async () => {
+      if (!onDiscoverServerFile) return;
+      
+      try {
+        const devPort = process.env.NEXT_PUBLIC_SERVER_PORT || "5000";
+        const baseUrl = process.env.NODE_ENV === "production" ? "" : `http://localhost:${devPort}`;
+        
+        const res = await fetch(`${baseUrl}/api/files`);
+        if (res.ok) {
+          const serverFiles = await res.json();
+          if (Array.isArray(serverFiles)) {
+            // Add each discovered file to the local cache silently
+            serverFiles.forEach(file => {
+              onDiscoverServerFile(file.name, file.id);
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Could not auto-discover server files:", err);
+      }
+    };
+
+    if (loaded) {
+      fetchServerFiles();
+    }
+  }, [loaded, onDiscoverServerFile]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,10 +69,8 @@ export function FilePicker({ files, loaded, onOpen, onCreate, onRemove }: FilePi
 
   return (
     <div className="my-auto flex w-full flex-col items-center gap-15 text-center animate-fade-in">
-      {/* Brand Header */}
       <div className="flex flex-col items-center gap-2">
         <h1 className="pixel text-5xl leading-none sm:text-7xl tracking-tight">tandem.</h1>
-        {/* Scaled up description text */}
         <p className="fg-dim text-base sm:text-lg mt-4">
           Select a workspace file, or make a new one.
         </p>
@@ -76,7 +98,6 @@ export function FilePicker({ files, loaded, onOpen, onCreate, onRemove }: FilePi
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left"
                   >
                     <span className="fg-teal text-sm opacity-80 group-hover:translate-x-0.5 transition-transform">▸</span>
-                    {/* Scaled up file name */}
                     <span className="truncate font-medium text-base text-zinc-200 group-hover:text-white transition-colors">
                       {file.name}
                     </span>
@@ -98,7 +119,6 @@ export function FilePicker({ files, loaded, onOpen, onCreate, onRemove }: FilePi
           )}
 
           <form onSubmit={submit} className="flex items-center gap-3 border-t border-zinc-700/50 pt-5">
-            {/* Input box with matching height constraints */}
             <input
               ref={inputRef}
               className="line-input flex-1 h-11 px-4 bg-zinc-900/50 border border-zinc-700/50 rounded-sm outline-none focus:border-teal-500 text-base leading-none transition-colors"
@@ -109,7 +129,6 @@ export function FilePicker({ files, loaded, onOpen, onCreate, onRemove }: FilePi
               autoComplete="off"
               aria-label="New file name"
             />
-            {/* Create button with matching h-11 height */}
             <button 
               type="submit" 
               className="tab shrink-0 h-11 px-6 text-base font-medium flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all" 

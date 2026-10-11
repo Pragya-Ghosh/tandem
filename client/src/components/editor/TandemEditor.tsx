@@ -83,6 +83,7 @@ function TandemEditorContent({ fileId }: { fileId: string | null }) {
           onOpen={handleOpen}
           onCreate={handleCreate}
           onRemove={removeFile}
+          onDiscoverServerFile={addFile}
         />
       </main>
     );

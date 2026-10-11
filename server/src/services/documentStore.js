@@ -6,11 +6,11 @@ const MAX_LINE_LENGTH = 10000;
 const MAX_ID_LENGTH = 64;
 
 /**
- * In-memory document: an ordered list of lines `{ id, index, version, content, timestamp }`.
- *  - `id` is stable for the life of a line. ALL operations address lines by id.
- *  - `index` is the 1-based position, renumbered after every structural change.
- *  - `version` goes up by one on every accepted edit (optimistic concurrency).
- *  - `timestamp` tracks the exact server time of the last modification.
+- In-memory document: an ordered list of lines `{ id, index, version, content, timestamp }`.
+-  - `id` is stable for the life of a line. ALL operations address lines by id.
+-  - `index` is the 1-based position, renumbered after every structural change.
+-  - `version` goes up by one on every accepted edit (optimistic concurrency).
+-  - `timestamp` tracks the exact server time of the last modification.
  */
 class DocumentStore {
   constructor(initialLines = []) {
@@ -18,6 +18,18 @@ class DocumentStore {
     this.lines =
       initialLines.length > 0
         ? initialLines.map((l, i) => {
+            // FIX: If the server passes a plain text string from the saved file
+            if (typeof l === 'string') {
+              return {
+                id: generateId(),
+                index: i + 1,
+                version: 1,
+                content: l,
+                timestamp: now
+              };
+            }
+
+            // Fallback: If it's already a Tandem line object
             const parsedTs = Number(l.timestamp);
             const validTimestamp = (!parsedTs || isNaN(parsedTs) || parsedTs <= 0) ? now : parsedTs;
             
@@ -25,7 +37,9 @@ class DocumentStore {
               ...l,
               id: l.id ?? generateId(),
               index: i + 1,
-              timestamp: validTimestamp, // Bulletproof timestamp parsing
+              content: l.content ?? "", // Ensure content is never dropped
+              version: l.version || 1,
+              timestamp: validTimestamp,
             };
           })
         : [
@@ -41,7 +55,7 @@ class DocumentStore {
   }
 
   /**
-   * Applies an edit if it was based on the line's current version.
+- Applies an edit if it was based on the line's current version.
    */
   applyEdit(lineId, baseVersion, newContent) {
     if (typeof newContent !== "string" || newContent.length > MAX_LINE_LENGTH) {
@@ -70,7 +84,7 @@ class DocumentStore {
   }
 
   /**
-   * Inserts a blank line with the client-chosen id `clientId` after the line `afterId`.
+- Inserts a blank line with the client-chosen id `clientId` after the line `afterId`.
    */
   addLine(afterId, clientId) {
     const idIsValid =
