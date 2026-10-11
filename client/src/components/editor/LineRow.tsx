@@ -141,7 +141,6 @@ export function LineRow({
         className={`line-input bg-transparent outline-none min-w-0 flex-1 !text-[16px] ${
           disabled ? "opacity-50 cursor-not-allowed" : ""
         }`} 
-        // Added a slight horizontal padding (px-2) to the input itself
         style={{ padding: "0.25rem 0.5rem" }}
       />
 
